@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Flask-APP_sample Security stack"
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that is prefixed to resource names
+    Type: String
+    Default: Flask-APP-Product
+
+  APPAllowedIP:
+    Description: "Source access permission settings to be applied to the ALB. Set according to the scope of publication, but specify your own home global IP if you do not publish externally."
+    Type: String
+    Default: "0.0.0.0/0"
+
+  EC2SSHAllowedIP:
+    Description: "ssh source access permission setting to EC2. Basically, specify your own home global IP."
+    Type: String
+    Default: "0.0.0.0/0"
+
+
+Resources:
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ALB Security Group
+      VpcId: !ImportValue Flask-App-Network-Stack-VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref APPAllowedIP
+      Tags:
+        - Key: Name
+          Value: !Sub  ${EnvironmentName} ALBSecurityGroup
+
+  EC2WEBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: WEB Server Security Group
+      VpcId: !ImportValue Flask-App-Network-Stack-VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref APPAllowedIP
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+      Tags:
+        - Key: Name
+          Value:  !Sub  ${EnvironmentName} EC2WEBSecurityGroup
+
+  EC2APPSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: APP Server Security Group
+      VpcId: !ImportValue Flask-App-Network-Stack-VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref EC2SSHAllowedIP
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref APPAllowedIP
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: !Ref APPAllowedIP
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          SourceSecurityGroupId: !Ref EC2WEBSecurityGroup
+      Tags:
+        - Key: Name
+          Value:  !Sub  ${EnvironmentName} EC2APPSecurityGroup
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS Security Group
+      VpcId: !ImportValue Flask-App-Network-Stack-VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref EC2APPSecurityGroup
+      Tags:
+        - Key: Name
+          Value:  !Sub  ${EnvironmentName} RDSSecurityGroup
+
+###
+### IAMロール定義を作成予定
+###
+
+Outputs:
+  ALBSecurityGroup:
+    Description: ALB Security Group
+    Value: !Ref ALBSecurityGroup
+    Export:
+      Name: Flask-App-Security-Stack-ALBSecurityGroup
+
+  EC2WEBSecurityGroup:
+    Description: Web Server Security Group
+    Value: !Ref EC2WEBSecurityGroup
+    Export:
+      Name: Flask-App-Security-Stack-EC2WEBSecurityGroup
+
+  EC2APPSecurityGroup:
+    Description: App Server Security Group
+    Value: !Ref EC2APPSecurityGroup
+    Export:
+      Name: Flask-App-Security-Stack-EC2APPSecurityGroup
+
+  RDSSecurityGroup:
+    Description: RDS Security Group
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: Flask-App-Security-Stack-RDSSecurityGroup
+
+### 先行スタックからのmapping用
+###Mappings:
+###
