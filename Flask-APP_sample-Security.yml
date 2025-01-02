@@ -19,6 +19,7 @@ Parameters:
 
 
 Resources:
+### SG
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -91,9 +92,31 @@ Resources:
         - Key: Name
           Value:  !Sub  ${EnvironmentName} RDSSecurityGroup
 
-###
-### IAMロール定義を作成予定
-###
+###IAM
+  SSMIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      RoleName: IAMRoleSSM
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  SSMIAMInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+          - !Ref SSMIAMRole
+
 
 Outputs:
   ALBSecurityGroup:
@@ -120,6 +143,14 @@ Outputs:
     Export:
       Name: Flask-App-Security-Stack-RDSSecurityGroup
 
-### 先行スタックからのmapping用
-###Mappings:
-###
+  SSMIAMRole:
+    Description: Flask-APP SSM IAM Role
+    Value: !Ref SSMIAMRole
+    Export:
+      Name: Flask-App-Security-Stack-SSMIAMRole
+
+  SSMIAMInstanceProfile:
+    Description: Flask-APP SSM IAM Instance Profile
+    Value: !Ref SSMIAMInstanceProfile
+    Export:
+      Name: Flask-App-Security-Stack-SSMIAMInstanceProfile
