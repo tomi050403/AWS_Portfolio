@@ -8,7 +8,7 @@ raisetechにて学んだ学習の振り返りと追加要素の学習。<br>
 
 ||内容|使用技術,AWSサービスなど|
 | :--- | :--- | :--- |
-|[01_web_app_deploy](01.md)|EC2への自作WEBアプリケーションデプロイ<br><br>|Python|
+|[01 Flask_APP_Deploy](01-APP_Deploy.md)|EC2への自作WEBアプリケーションデプロイ<br><br>|Python<br>|
 |[02_](.md)|<br><br>|Python|
 |[03_](.md)|<br><br>|Python|
 |[04_](.md)|<br><br>|Python|

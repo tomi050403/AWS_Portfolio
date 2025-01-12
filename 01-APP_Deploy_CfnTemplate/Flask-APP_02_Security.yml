@@ -41,9 +41,9 @@ Resources:
       VpcId: !ImportValue Flask-App-Network-Stack-VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: !Ref APPAllowedIP
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref EC2SSHAllowedIP
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -63,17 +63,15 @@ Resources:
           ToPort: 22
           CidrIp: !Ref EC2SSHAllowedIP
         - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: !Ref APPAllowedIP
-        - IpProtocol: tcp
-          FromPort: 8000
-          ToPort: 8000
-          CidrIp: !Ref APPAllowedIP
+          FromPort: 5000
+          ToPort: 5000
+          SourceSecurityGroupId: !Ref EC2WEBSecurityGroup
+          Description: Use Flask run
         - IpProtocol: tcp
           FromPort: 8000
           ToPort: 8000
           SourceSecurityGroupId: !Ref EC2WEBSecurityGroup
+          Description: Use Gunicorn
       Tags:
         - Key: Name
           Value:  !Sub  ${EnvironmentName} EC2APPSecurityGroup
@@ -91,32 +89,6 @@ Resources:
       Tags:
         - Key: Name
           Value:  !Sub  ${EnvironmentName} RDSSecurityGroup
-
-###IAM
-  SSMIAMRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-      RoleName: IAMRoleSSM
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-
-  SSMIAMInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: /
-      Roles:
-          - !Ref SSMIAMRole
-
 
 Outputs:
   ALBSecurityGroup:
@@ -142,15 +114,3 @@ Outputs:
     Value: !Ref RDSSecurityGroup
     Export:
       Name: Flask-App-Security-Stack-RDSSecurityGroup
-
-  SSMIAMRole:
-    Description: Flask-APP SSM IAM Role
-    Value: !Ref SSMIAMRole
-    Export:
-      Name: Flask-App-Security-Stack-SSMIAMRole
-
-  SSMIAMInstanceProfile:
-    Description: Flask-APP SSM IAM Instance Profile
-    Value: !Ref SSMIAMInstanceProfile
-    Export:
-      Name: Flask-App-Security-Stack-SSMIAMInstanceProfile
