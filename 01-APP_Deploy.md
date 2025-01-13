@@ -258,6 +258,8 @@ sudo systemctl start nginx.service
 ## Gunicorn接続確認
 
 ### CFnにて作成されたALB DNS名を確認
+
 ![image](/01-APP_Deploy_Figure/03_FLASK-APP-ALB.png)  <br>
 ### ブラウザ接続し、ALB経由で起動出来ていることを確認
+
 ![image](/01-APP_Deploy_Figure/04_gunicorn-run.png)  <br>
