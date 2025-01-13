@@ -207,8 +207,7 @@ flask run -h 0.0.0.0
 ![image](/01-APP_Deploy_Figure/02_app_flaskrun.png)  <br>
 
 
-続けてapサーバとwebサーバを分離する。
-
+## 続けてapサーバとwebサーバを分離する。
 ## 06_Set-up-gunicorn
 ### 1 gunicorn install
 gunicornのインストール
