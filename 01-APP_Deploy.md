@@ -12,7 +12,9 @@
 cloudformationからスタックにて下記の順番で作成する。<br>
 
 ## 1,Network
+
 ---
+
 [Networkスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_01_Network.yml)<br>
 Parametersにて下記項目の設定変更が可能<br>
 
@@ -38,7 +40,9 @@ Parametersにて下記項目の設定変更が可能<br>
 |HostZone|EC2WEB→EC2APPの名前解決のため|
 
 ## 2,Security
+
 ---
+
 [Securityスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_02_Security.yml)  <br>
 Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 
@@ -55,7 +59,9 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 |RDSSG|RDS適用|EC2APPSGからの3306|
 
 ## 3,Application
+
 ---
+
 [Applicationスタック](01-APP_Deploy_CfnTemplate/Flask-APP_03_Application.yml)<br>
 
 Parametersで各EC2のAMIおよびKeyPairを設定<br>
@@ -74,7 +80,9 @@ Parametersで各EC2のAMIおよびKeyPairを設定<br>
 |RecordSet|EC2WEB→EC2APPの名前解決のため|
 
 ## 4,Application(RDS)
+
 ---
+
 [Application_RDSスタック](01-APP_Deploy_CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
 cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回は手動スタックにて値を入力する前提のため問題なしとする。
@@ -85,7 +93,9 @@ cfn-lint（コードを精査して、そのコードを実行したときにエ
 
 
 ### HostZoneおよびArecordsetのリソース確認
+
 ---
+
 ホストゾーンとレコードセットが作成されていること、また、EC2WEBから名前解決できることを確認<br>
 ![image](/01-APP_Deploy_Figure/05-hostzone.png)  <br>
 ![image](/01-APP_Deploy_Figure/06-Arecordhostzone.png)  <br>
@@ -200,7 +210,9 @@ flask run -h 0.0.0.0
 ~~~
 
 ## Flask接続確認
+
 ---
+
 ### CFnにて作成したAppServerのパブリックIPを確認。
 ![image](/01-APP_Deploy_Figure/01_app_ip.png)  <br>
 ### EC2Appにブラウザ接続し、起動出来ていることを確認
@@ -258,7 +270,9 @@ sudo systemctl start nginx.service
 ~~~
 
 ## Gunicorn接続確認
+
 ---
+
 ### CFnにて作成されたALB DNS名を確認
 ![image](/01-APP_Deploy_Figure/03_FLASK-APP-ALB.png)  <br>
 ### ブラウザ接続し、ALB経由で起動出来ていることを確認
