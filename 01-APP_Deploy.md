@@ -85,6 +85,7 @@ cfn-lint（コードを精査して、そのコードを実行したときにエ
 
 
 ## HostZoneおよびArecordsetのリソース確認
+![image](/01-APP_Deploy_Figure/08-stack.png)  <br>
 スタック作成後にホストゾーンとレコードセットが作成されていること、また、EC2WEBから名前解決できることを確認<br>
 ![image](/01-APP_Deploy_Figure/05-hostzone.png)  <br>
 ![image](/01-APP_Deploy_Figure/06-Arecordhostzone.png)  <br>
