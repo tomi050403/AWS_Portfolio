@@ -5,19 +5,87 @@
 
 ## AWS環境構築
 ### 構成図
-![image](/01-APP_Deploy_Figure/figure.png)  <br>
+![構成図](/01-APP_Deploy_Figure/figure.png)  <br>
 
 ### CFnテンプレート
-Network
-VPC
+上記構成図をレイヤー毎に分割することを意識し、３分割してクロススタックにて作成。<br>
+cloudformationからスタックにて下記の順番で作成する。<br>
 
-Security
-SG
+#### Network
+[Networkスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_01_Network.yml)<br>
+Parametersにて下記項目の設定変更が可能<br>
 
-Application
-EC2
-RDS
-Route
+|設定項目|デフォルト|
+| :--- | :--- |
+|VPC CIDR|10.10.0.0/16|
+|PublicSubnet1 CIDR|10.10.1.0/24|
+|PublicSubnet2 CIDR|10.10.2.0/24|
+|PrivateSubnet1 CIDR|10.10.11.0/24|
+|PrivateSubnet2 CIDR|10.10.12.0/24|
+
+|作成リソース一覧|備考|
+| :--- | :--- |
+|VPC||
+|InternetGateway||
+|PublicSubnet1||
+|PublicSubnet2||
+|PrivateSubnet1||
+|PrivateSubnet2||
+|RDSSubnetGroup||
+|PublicRouteTable||
+|DefaultPublicRoute||
+|HostZone|EC2WEB→EC2APPの名前解決のため|
+
+#### Security
+[Securityスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_02_Security.yml)  <br>
+Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
+
+|設定項目|デフォルト|備考|
+| :--- | :--- | :--- |
+|APPAllowedIP|0.0.0.0/0|アプリケーション接続用。必要に応じて設定|
+|EC2SSHAllowedIP|0.0.0.0/0|EC2WEB,EC2APPへのssh接続用。基本的に自IPのみに絞る|
+
+|作成リソース一覧|用途|許可設定|
+| :--- | :--- | :--- |
+|ALBSG|ALB適用|APPAllowedIPからのtcp,80|
+|EC2WEBSG|EC2WEB適用|ALBSGからのtcp,80　EC2SSHAllowedIPからのssh|
+|EC2APPSG|EC2APP適用|EC2WEBSGからのtcp,5000および8000 80　EC2SSHAllowedIPからのssh|
+|RDSSG|RDS適用|EC2APPSGからの3306|
+
+#### Application
+[Applicationスタック](01-APP_Deploy_CfnTemplate/Flask-APP_03_Application.yml)<br>
+
+Parametersで各EC2のAMIおよびKeyPairを設定<br>
+
+|設定項目|デフォルト|備考|
+| :--- | :--- | :--- |
+|EC2AppImageID|最新版指定||
+|EC2WebImageID|最新版指定||
+|EC2Keypair|-|作成済みのものをプルダウンにて指定|
+
+|作成リソース一覧|備考|
+| :--- | :--- |
+|EC2WEB||
+|EC2APP||
+|ALB||
+|RecordSet|EC2WEB→EC2APPの名前解決のため|
+
+#### Application(RDS)
+[Application_RDSスタック](01-APP_Deploy_CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
+RDSのみスタック実行時間を要するため分離。<br>
+cfn-lintにて
+
+|作成リソース一覧|備考|
+| :--- | :--- |
+|RDS||
+
+
+#### HostZoneおよびArecordsetのリソース確認
+ホストゾーンとレコードセットが作成されていること、また、EC2WEBから名前解決できることを確認<br>
+![image](/01-APP_Deploy_Figure/05-hostzone.png)  <br>
+![image](/01-APP_Deploy_Figure/06-Arecordhostzone.png)  <br>
+![image](/01-APP_Deploy_Figure/07-nslookup.png)  <br>
+
 
 ## アプリケーションデプロイ
 
@@ -98,7 +166,8 @@ cd flask-app
 ~~~
 
 #### 2 Setup env file
-サンプルアプリケーション用の.envファイル作成
+サンプルアプリケーション用の.envファイル作成（.envについてはサンプルアプリケーションリポジトリ参照）
+[自作サンプルアプリケーション](https://github.com/tomi050403/flask-app.git)<br>
 ~~~
 nano flaskr/.env
 ~~~
@@ -160,6 +229,21 @@ nginx設定ファイルの作成
 ~~~
 sudo nano /etc/nginx/conf.d/flask-app.conf
 ~~~
+
+下記のように作成。
+```nginx
+server {
+    listen 80;
+    server_name app.instance.privatelocal;
+
+    location / {
+        proxy_pass http://app.instance.privatelocal:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+}
+```
+
 
 #### 3 Start nginx
 nginx起動
