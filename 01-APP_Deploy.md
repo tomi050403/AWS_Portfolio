@@ -255,7 +255,7 @@ nginx起動
 sudo systemctl start nginx.service
 ~~~
 
-## Gunicorn接続確認
+# Gunicorn接続確認
 
 ## CFnにて作成されたALB DNS名を確認
 
