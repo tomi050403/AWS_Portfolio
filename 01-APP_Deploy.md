@@ -14,28 +14,17 @@ cloudformationからスタックにて下記の順番で作成する。<br>
 ## 1,Network
 
 [Networkスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_01_Network.yml)<br>
-Parametersにて下記項目の設定変更が可能<br>
-
-|設定項目|デフォルト|
-| :--- | :--- |
-|VPC CIDR|10.10.0.0/16|
-|PublicSubnet1 CIDR|10.10.1.0/24|
-|PublicSubnet2 CIDR|10.10.2.0/24|
-|PrivateSubnet1 CIDR|10.10.11.0/24|
-|PrivateSubnet2 CIDR|10.10.12.0/24|
 
 |作成リソース一覧|備考|
 | :--- | :--- |
-|VPC||
+|VPC|スタック作成時設定変更可能<br>デフォルト：10.10.0.0/16|
 |InternetGateway||
-|PublicSubnet1||
-|PublicSubnet2||
-|PrivateSubnet1||
-|PrivateSubnet2||
+|PublicSubnet1|スタック作成時設定変更可能<br>デフォルト：10.10.1.0/24|
+|PublicSubnet2|スタック作成時設定変更可能<br>デフォルト：10.10.2.0/24|
+|PrivateSubnet1|スタック作成時設定変更可能<br>デフォルト：10.10.11.0/24|
+|PrivateSubnet2|スタック作成時設定変更可能<br>デフォルト：10.10.12.0/24|
 |RDSSubnetGroup||
-|PublicRouteTable||
-|DefaultPublicRoute||
-|HostZone|EC2WEB→EC2APPの名前解決のため|
+|HostZone|プライベートドメイン定義<br>EC2WEB→EC2APPの名前解決のため|
 
 ## 2,Security
 
@@ -49,35 +38,27 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 
 |作成リソース一覧|用途|許可設定|
 | :--- | :--- | :--- |
-|ALBSG|ALB適用|APPAllowedIPからのtcp,80|
-|EC2WEBSG|EC2WEB適用|ALBSGからのtcp,80　EC2SSHAllowedIPからのssh|
-|EC2APPSG|EC2APP適用|EC2WEBSGからのtcp,5000および8000 80　EC2SSHAllowedIPからのssh|
-|RDSSG|RDS適用|EC2APPSGからの3306|
+|ALBSG|ALB用|ソース：APPAllowedIP　TCP 80|
+|EC2WEBSG|EC2WEB用|ソース：ALBSG　TCP 80<br>ソース：EC2SSHAllowedIP ssh|
+|EC2APPSG|EC2APP用|ソース：EC2WEBSG　TCP 5000,8000<br>ソース：EC2SSHAllowedIP ssh|
+|RDSSG|RDS用|ソース：EC2APPSG TCP 3306|
 
 ## 3,Application
 
 [Applicationスタック](01-APP_Deploy_CfnTemplate/Flask-APP_03_Application.yml)<br>
 
-Parametersで各EC2のAMIおよびKeyPairを設定<br>
-
-|設定項目|デフォルト|備考|
-| :--- | :--- | :--- |
-|EC2AppImageID|最新版指定||
-|EC2WebImageID|最新版指定||
-|EC2Keypair|-|作成済みのものをプルダウンにて指定|
-
 |作成リソース一覧|備考|
 | :--- | :--- |
-|EC2WEB||
-|EC2APP||
+|EC2WEB|スタック作成時設定変更可能<br>デフォルト：AmazonLinux2最新版|
+|EC2APP|スタック作成時設定変更可能<br>デフォルト：AmazonLinux2最新版|
 |ALB||
-|RecordSet|EC2WEB→EC2APPの名前解決のため|
+|RecordSet|EC2APP用Aレコード<br>EC2WEB→EC2APPの名前解決のため|
 
 ## 4,Application(RDS)
 
 [Application_RDSスタック](01-APP_Deploy_CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
-cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回は手動スタックにて値を入力する前提のため問題なしとする。
+cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回はAWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。
 
 |作成リソース一覧|備考|
 | :--- | :--- |
