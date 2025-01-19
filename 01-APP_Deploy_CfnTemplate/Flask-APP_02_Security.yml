@@ -65,7 +65,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 5000
           ToPort: 5000
-          SourceSecurityGroupId: !Ref EC2WEBSecurityGroup
+          CidrIp: !Ref APPAllowedIP
           Description: Use Flask run
         - IpProtocol: tcp
           FromPort: 8000

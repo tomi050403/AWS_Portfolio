@@ -40,7 +40,7 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 | :--- | :--- | :--- |
 |ALBSG|ALB用|ソース：APPAllowedIP　TCP 80|
 |EC2WEBSG|EC2WEB用|ソース：ALBSG　TCP 80<br>ソース：EC2SSHAllowedIP ssh|
-|EC2APPSG|EC2APP用|ソース：EC2WEBSG　TCP 5000,8000<br>ソース：EC2SSHAllowedIP ssh|
+|EC2APPSG|EC2APP用|ソース：APPAllowedIP　TCP 5000<br>ソース：EC2WEBSG　TCP 8000<br>ソース：EC2SSHAllowedIP ssh|
 |RDSSG|RDS用|ソース：EC2APPSG TCP 3306|
 
 ## 3,Application
@@ -58,7 +58,15 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 
 [Application_RDSスタック](01-APP_Deploy_CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
-cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回はAWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。
+cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回はAWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。<br>
+
+Parametersで下記項目を設定可能<br>
+
+|設定項目|備考|
+| :--- |:--- |
+|RDSDBUserName|データベースユーザ名|
+|RDSDBUserPass|データベースパスワード|
+|RDSDataBaseName|アプリケーション用データベース名|
 
 |作成リソース一覧|備考|
 | :--- | :--- |
