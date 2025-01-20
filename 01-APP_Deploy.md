@@ -36,12 +36,12 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 |APPAllowedIP|0.0.0.0/0|アプリケーション接続用。必要に応じて設定|
 |EC2SSHAllowedIP|0.0.0.0/0|EC2WEB,EC2APPへのssh接続用。基本的に自IPのみに絞る|
 
-|作成リソース一覧|用途|許可設定|
-| :--- | :--- | :--- |
-|ALBSG|ALB用|ソース：APPAllowedIP　TCP 80|
-|EC2WEBSG|EC2WEB用|ソース：ALBSG　TCP 80<br>ソース：EC2SSHAllowedIP ssh|
-|EC2APPSG|EC2APP用|ソース：APPAllowedIP　TCP 5000<br>ソース：EC2WEBSG　TCP 8000<br>ソース：EC2SSHAllowedIP ssh|
-|RDSSG|RDS用|ソース：EC2APPSG TCP 3306|
+|作成リソース一覧|用途|許可設定（ソース）|許可設定（ポート）|
+| :--- | :--- | :--- | :--- |
+|ALBSG|ALB用|APPAllowedIP|TCP 80|
+|EC2WEBSG|EC2WEB用|ALBSG<br>EC2SSHAllowedIP|TCP 80<br>ssh|
+|EC2APPSG|EC2APP用|APPAllowedIP<br>EC2WEBSG<br>EC2SSHAllowedIP|TCP 5000<br>TCP 8000<br>ssh|
+|RDSSG|RDS用|EC2APPSG|TCP 3306|
 
 ## 3,Application
 
