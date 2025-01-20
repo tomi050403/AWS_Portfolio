@@ -45,18 +45,25 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 
 ## 3,Application
 
-[Applicationスタック](01-APP_Deploy_CfnTemplate/Flask-APP_03_Application.yml)<br>
+[Applicationスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_03_Application.yml)<br>
+Parametersで各EC2インスタンス(AMAZON Linux 2)にて任意のバージョンのAMIを使うか、最新版のAMIを使うか選択できるようにしている。<br>
+
+"UseEC2APPLatest"および"UseEC2WEBLatest"にてtrueを選択するとAmazonLinux2最新版のAMIを使用してEC2が作成される。<br>
+![image](/01-APP_Deploy_Figure/09_stack-app-02.png)  <br>
+
+デフォルトがflaseとしており、"ECAPPCustomAmi""ECWEBCustomAmi"（記入例：ami-007add8d6b8a5fb81）に設定されているAMIにてEC2が作成される。<br>
+![image](/01-APP_Deploy_Figure/09_stack-app-01.png)  <br>
 
 |作成リソース一覧|備考|
 | :--- | :--- |
-|EC2WEB|スタック作成時設定変更可能<br>デフォルト：AmazonLinux2最新版|
-|EC2APP|スタック作成時設定変更可能<br>デフォルト：AmazonLinux2最新版|
+|EC2WEB|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
+|EC2APP|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
 |ALB||
 |RecordSet|EC2APP用Aレコード<br>EC2WEB→EC2APPの名前解決のため|
 
 ## 4,Application(RDS)
 
-[Application_RDSスタック](01-APP_Deploy_CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
+[Application_RDSスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
 cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回はAWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。<br>
 
@@ -135,7 +142,7 @@ pyenv global 3.12.1
 pyenv versions
 ~~~
 
-### 4_Poetry install
+### 4 Poetry install
 poetryインストール
 ~~~
 curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4

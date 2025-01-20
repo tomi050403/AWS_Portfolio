@@ -7,26 +7,50 @@ Parameters:
     Type: String
     Default: Flask-APP-Product
 
-  EC2AppImageID:
-    Description: "Please enter ami for ec2."
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  UseEC2APPLatest:
+    Description: "Specify 'true' to use the latest Amazon Linux 2 AMI, or 'false' to specify a custom AMI ID."
+    Type: String
+    AllowedValues: [true, false]
+    Default: false
 
-  EC2WebImageID:
-    Description: "Please enter ami for ec2."
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  ECAPPCustomAmi:
+    Description: "Specify a custom AMI ID (only used if 'UseEC2APPLatest' is 'false')."
+    Type: String
+    Default: ami-007add8d6b8a5fb81
+
+  UseEC2WEBLatest:
+    Description: "Specify 'true' to use the latest Amazon Linux 2 AMI, or 'false' to specify a custom AMI ID."
+    Type: String
+    AllowedValues: [true, false]
+    Default: false
+
+  ECWEBCustomAmi:
+    Description: "Specify a custom AMI ID (only used if 'UseEC2WEBLatest' is 'false')."
+    Type: String
+    Default: ami-007add8d6b8a5fb81
 
   EC2Keypair:
     Description: "Enter the keypair to be used."
     Type: AWS::EC2::KeyPair::KeyName
 
+  LatestAmazonLinuxAmi:
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+
+
+Conditions:
+  EC2APPUseEC2AmiLatestCheck: !Equals [!Ref UseEC2APPLatest, 'true']
+  EC2WEBUseEC2AmiLatestCheck: !Equals [!Ref UseEC2WEBLatest, 'true']
+
 Resources:
-###EC2web
+### EC2 Web Instance
   EC2WebInstance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref EC2WebImageID
+      ImageId: !If
+        - EC2WEBUseEC2AmiLatestCheck
+        - !Ref LatestAmazonLinuxAmi
+        - !Ref ECWEBCustomAmi
       InstanceType: t2.micro
       SubnetId: !ImportValue Flask-App-Network-Stack-PublicSubnet1
       SecurityGroupIds:
@@ -34,13 +58,16 @@ Resources:
       KeyName: !Ref EC2Keypair
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} WebServer
+          Value: !Sub "${EnvironmentName} WebServer"
 
-###EC2APP
+### EC2 App Instance
   EC2AppInstance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref EC2AppImageID
+      ImageId: !If
+        - EC2APPUseEC2AmiLatestCheck
+        - !Ref LatestAmazonLinuxAmi
+        - !Ref ECAPPCustomAmi
       InstanceType: t2.micro
       SubnetId: !ImportValue Flask-App-Network-Stack-PublicSubnet1
       SecurityGroupIds:
@@ -48,15 +75,17 @@ Resources:
       KeyName: !Ref EC2Keypair
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} AppServer
+          Value: !Sub "${EnvironmentName} AppServer"
 
+
+### Route 53 Hosted Zone and Record Set
   APPHostedZone:
     Type: AWS::Route53::HostedZone
     Properties:
       Name: instance.privatelocal
       VPCs:
         - VPCId: !ImportValue Flask-App-Network-Stack-VPC
-          VPCRegion: !ImportValue  Flask-App-Network-Stack-VPCRegion
+          VPCRegion: !ImportValue Flask-App-Network-Stack-VPCRegion
 
   APPRecordSet:
     Type: AWS::Route53::RecordSet
@@ -68,7 +97,7 @@ Resources:
       ResourceRecords:
         - !GetAtt EC2AppInstance.PrivateIpAddress
 
-###ALB
+### Application Load Balancer
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -83,7 +112,7 @@ Resources:
       IpAddressType: ipv4
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} ALB
+          Value: !Sub "${EnvironmentName} ALB"
 
   ALBTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -91,12 +120,10 @@ Resources:
       Name: Flask-APP-ALB-TG
       VpcId: !ImportValue Flask-App-Network-Stack-VPC
       Protocol: HTTP
-      ProtocolVersion: HTTP1
       Port: 80
       TargetType: instance
       Targets:
         - Id: !Ref EC2WebInstance
-          Port: 80
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 30
       HealthCheckPath: /
@@ -108,7 +135,7 @@ Resources:
         HttpCode: 200
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} ALBTG
+          Value: !Sub "${EnvironmentName} ALBTG"
 
   ALBListenerResource:
     Type: AWS::ElasticLoadBalancingV2::Listener
