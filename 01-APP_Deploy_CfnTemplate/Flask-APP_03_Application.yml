@@ -78,19 +78,11 @@ Resources:
           Value: !Sub "${EnvironmentName} AppServer"
 
 
-### Route 53 Hosted Zone and Record Set
-  APPHostedZone:
-    Type: AWS::Route53::HostedZone
-    Properties:
-      Name: instance.privatelocal
-      VPCs:
-        - VPCId: !ImportValue Flask-App-Network-Stack-VPC
-          VPCRegion: !ImportValue Flask-App-Network-Stack-VPCRegion
-
+### Route 53 Record Set
   APPRecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
-      HostedZoneId: !Ref APPHostedZone
+      HostedZoneId: !ImportValue Flask-App-Network-Stack-APPHostedZone
       Name: app.instance.privatelocal
       Type: A
       TTL: 60
