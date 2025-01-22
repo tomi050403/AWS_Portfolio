@@ -244,4 +244,3 @@ Outputs:
     Value: !Ref APPHostedZone
     Export:
       Name: Flask-App-Network-Stack-APPHostedZone
-
