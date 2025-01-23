@@ -106,6 +106,24 @@ Resources:
         - Key: Name
           Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
 
+### NATgateway
+  NATGatewayIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} NATGatewayIP
+
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      AllocationId: !GetAtt NATGatewayIP.AllocationId
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} NATGateway
+
   RDSSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -154,6 +172,13 @@ Resources:
         - Key:  Name
           Value: !Sub ${EnvironmentName} Private Routes (AZ1)
 
+  PrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref NATGateway
+
   PrivateSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -182,7 +207,6 @@ Resources:
       VPCs:
         - VPCId: !Ref VPC
           VPCRegion: !Ref VPCRegion
-
 
 Outputs:
   VPC:
