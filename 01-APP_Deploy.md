@@ -5,7 +5,7 @@
 
 # AWS環境構築
 ## 構成図
-![構成図](/01-APP_Deploy/01-Figure/figure (1).png)  <br>
+![構成図](/01-APP_Deploy/01-Figure/figure-copy.png)  <br>
 
 # CFnテンプレート
 上記構成図をレイヤー毎に分割することを意識し、３分割してクロススタックにて作成。<br>
