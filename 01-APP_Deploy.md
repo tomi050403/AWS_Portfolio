@@ -5,7 +5,7 @@
 
 # AWS環境構築
 ## 構成図
-![構成図](/01-APP_Deploy_Figure/figure.png)  <br>
+![構成図](/01-APP_Deploy/01-Figure/figure.png)  <br>
 
 # CFnテンプレート
 上記構成図をレイヤー毎に分割することを意識し、３分割してクロススタックにて作成。<br>
@@ -13,7 +13,7 @@ cloudformationからスタックにて下記の順番で作成する。<br>
 
 ## 1,Network
 
-[Networkスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_01_Network.yml)<br>
+[Networkスタック](/01-APP_Deploy/01-Figure/Flask-APP_01_Network.yml)<br>
 
 |作成リソース一覧|備考|
 | :--- | :--- |
@@ -28,7 +28,7 @@ cloudformationからスタックにて下記の順番で作成する。<br>
 
 ## 2,Security
 
-[Securityスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_02_Security.yml)  <br>
+[Securityスタック](/01-APP_Deploy/01-Figure/Flask-APP_02_Security.yml)  <br>
 Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 
 |設定項目|デフォルト|備考|
@@ -45,14 +45,14 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 
 ## 3,Application
 
-[Applicationスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_03_Application.yml)<br>
+[Applicationスタック](/01-APP_Deploy/01-Figure/Flask-APP_03_Application.yml)<br>
 Parametersで各EC2インスタンス(AMAZON Linux 2)にて任意のバージョンのAMIを使うか、最新版のAMIを使うか選択できるようにしている。<br>
 
 "UseEC2APPLatest"および"UseEC2WEBLatest"にてtrueを選択するとAmazonLinux2最新版のAMIを使用してEC2が作成される。<br>
-![image](/01-APP_Deploy_Figure/09_stack-app-02.png)  <br>
+![image](/01-APP_Deploy/01-Figure/09_stack-app-02.png)  <br>
 
 デフォルトがflaseとしており、"ECAPPCustomAmi""ECWEBCustomAmi"（記入例：ami-007add8d6b8a5fb81）に設定されているAMIにてEC2が作成される。<br>
-![image](/01-APP_Deploy_Figure/09_stack-app-01.png)  <br>
+![image](/01-APP_Deploy/01-Figure/09_stack-app-01.png)  <br>
 
 |作成リソース一覧|備考|
 | :--- | :--- |
@@ -63,7 +63,7 @@ Parametersで各EC2インスタンス(AMAZON Linux 2)にて任意のバージョ
 
 ## 4,Application(RDS)
 
-[Application_RDSスタック](/01-APP_Deploy_CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
+[Application_RDSスタック](/01-APP_Deploy/01-Figure/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
 cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回はAWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。<br>
 
@@ -81,11 +81,11 @@ Parametersで下記項目を設定可能<br>
 
 
 ## HostZoneおよびArecordsetのリソース確認
-![image](/01-APP_Deploy_Figure/08-stack.png)  <br>
+![image](/01-APP_Deploy/01-Figure/08-stack.png)  <br>
 スタック作成後にホストゾーンとレコードセットが作成されていること、また、EC2WEBから名前解決できることを確認<br>
-![image](/01-APP_Deploy_Figure/05-hostzone.png)  <br>
-![image](/01-APP_Deploy_Figure/06-Arecordhostzone.png)  <br>
-![image](/01-APP_Deploy_Figure/07-nslookup.png)  <br>
+![image](/01-APP_Deploy/01-Figure/05-hostzone.png)  <br>
+![image](/01-APP_Deploy/01-Figure/06-Arecordhostzone.png)  <br>
+![image](/01-APP_Deploy/01-Figure/07-nslookup.png)  <br>
 
 
 # アプリケーションデプロイ
@@ -198,9 +198,9 @@ flask run -h 0.0.0.0
 ## Flask接続確認
 
 ### CFnにて作成したAppServerのパブリックIPを確認。
-![image](/01-APP_Deploy_Figure/01_app_ip.png)  <br>
+![image](/01-APP_Deploy/01-Figure/01_app_ip.png)  <br>
 ### EC2Appにブラウザ接続し、起動出来ていることを確認
-![image](/01-APP_Deploy_Figure/02_app_flaskrun.png)  <br>
+![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
 
 
 ## 続けてapサーバとwebサーバを分離する。<br>06_Set-up-gunicorn
@@ -255,7 +255,7 @@ sudo systemctl start nginx.service
 
 ## CFnにて作成されたALB DNS名を確認
 
-![image](/01-APP_Deploy_Figure/03_FLASK-APP-ALB.png)  <br>
+![image](/01-APP_Deploy/01-Figure/03_FLASK-APP-ALB.png)  <br>
 ## ブラウザ接続し、ALB経由で起動出来ていることを確認
 
-![image](/01-APP_Deploy_Figure/04_gunicorn-run.png)  <br>
+![image](/01-APP_Deploy/01-Figure/04_gunicorn-run.png)  <br>
