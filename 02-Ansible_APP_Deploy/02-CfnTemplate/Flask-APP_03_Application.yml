@@ -16,7 +16,7 @@ Parameters:
   ECAPPCustomAmi:
     Description: "Specify a custom AMI ID (only used if 'UseEC2APPLatest' is 'false')."
     Type: String
-    Default: ami-007add8d6b8a5fb81
+    Default: ami-0b28346b270c7b165
 
   UseEC2WEBLatest:
     Description: "Specify 'true' to use the latest Amazon Linux 2 AMI, or 'false' to specify a custom AMI ID."
@@ -27,7 +27,7 @@ Parameters:
   ECWEBCustomAmi:
     Description: "Specify a custom AMI ID (only used if 'UseEC2WEBLatest' is 'false')."
     Type: String
-    Default: ami-007add8d6b8a5fb81
+    Default: ami-0b28346b270c7b165
 
   EC2Keypair:
     Description: "Enter the keypair to be used."
@@ -35,7 +35,7 @@ Parameters:
 
   LatestAmazonLinuxAmi:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
-    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+    Default: "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
 
 
 Conditions:

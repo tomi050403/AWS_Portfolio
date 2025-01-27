@@ -5,7 +5,7 @@
 
 # AWS環境構築
 ## 構成図
-![構成図](/01-APP_Deploy/01-Figure/figure_after.png)  <br>
+![構成図](/01-APP_Deploy/01-Figure/figure.png)  <br>
 
 # CFnテンプレート
 上記構成図をレイヤー毎に分割することを意識し、３分割してクロススタックにて作成。<br>
@@ -46,9 +46,9 @@ Parametersで一部のSG(SecurityGroup)の送信元IPを設定可能<br>
 ## 3,Application
 
 [Applicationスタック](/01-APP_Deploy/01-Figure/Flask-APP_03_Application.yml)<br>
-Parametersで各EC2インスタンス(AMAZON Linux 2)にて任意のバージョンのAMIを使うか、最新版のAMIを使うか選択できるようにしている。<br>
+Parametersで各EC2インスタンス(AMAZON Linux 2023)にて任意のバージョンのAMIを使うか、最新版のAMIを使うか選択できるようにしている。<br>
 
-"UseEC2APPLatest"および"UseEC2WEBLatest"にてtrueを選択するとAmazonLinux2最新版のAMIを使用してEC2が作成される。<br>
+"UseEC2APPLatest"および"UseEC2WEBLatest"にてtrueを選択するとAmazonLinux2023最新版のAMIを使用してEC2が作成される。<br>
 ![image](/01-APP_Deploy/01-Figure/09_stack-app-02.png)  <br>
 
 デフォルトがflaseとしており、"ECAPPCustomAmi""ECWEBCustomAmi"（記入例：ami-007add8d6b8a5fb81）に設定されているAMIにてEC2が作成される。<br>
@@ -56,8 +56,8 @@ Parametersで各EC2インスタンス(AMAZON Linux 2)にて任意のバージョ
 
 |作成リソース一覧|備考|
 | :--- | :--- |
-|EC2WEB|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
-|EC2APP|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
+|EC2WEB|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2023最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
+|EC2APP|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2023最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
 |ALB||
 |RecordSet|EC2APP用Aレコード<br>EC2WEB→EC2APPの名前解決のため|
 
@@ -101,7 +101,7 @@ sudo yum update -y
 ### 2 Install-Dep-Packages
 必要パッケージのインストール
 ~~~
-sudo yum install -y git gcc openssl11 openssl11-devel bzip2-devel ncurses-devel libffi-devel readline-devel sqlite-devel.x86_64 xz-devel
+sudo dnf install -y git gcc zlib-devel bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 ~~~
 
 ## 02 pyenv-install
@@ -221,7 +221,7 @@ WEBサーバへの設定
 ## 01 set-up-websv
 ### 1 nginx install
 ~~~
-sudo amazon-linux-extras install -y nginx1
+sudo dnf -y install nginx
 ~~~
 
 ### 2 set up nginx config
