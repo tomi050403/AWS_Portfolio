@@ -137,7 +137,7 @@ pyenv install 3.12.1
 ~~~
 pyenv global 3.12.1
 ~~~
-### 3 pyenv version check
+### 3 python version check
 ~~~
 pyenv versions
 ~~~
