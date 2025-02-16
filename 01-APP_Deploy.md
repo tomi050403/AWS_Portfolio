@@ -93,9 +93,10 @@ Parametersで下記項目を設定可能<br>
 ## ⅰ APP-SV
 APPサーバへの設定
 ## 01_Initial
-### 1 yum update
+### 1 dnf update
+dnfのアップデート
 ~~~
-sudo yum update -y
+sudo dnf update -y
 ~~~
 
 ### 2 Install-Dep-Packages
@@ -106,38 +107,43 @@ sudo dnf install -y git gcc zlib-devel bzip2-devel readline-devel sqlite sqlite-
 
 ## 02 pyenv-install
 ### 1 clone pyenv
+pyenvのインストール
 ~~~
 git clone https://github.com/pyenv/pyenv.git ~/.pyenv
 ~~~
 
 ### 2 Passing by pyenv
-pyenv利用のためパスを通す
+pyenv利用のためパスを通す_1
 #### 2-1 Add pyenv to the PATH
 ~~~
 echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
 ~~~
 
 #### 2-2 Add the pyenv init the shell
+pyenv利用のためパスを通す_2
 ~~~
 echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 ~~~
 
 #### 2-3 Run source ~/.bashrc
+pyenv利用のためパスを通す_3
 ~~~
 source ~/.bashrc
 ~~~
 
 ## 03_Python-install
-pythonインストール
 ### 1 pyenv install
+python 3.12.1のインストール
 ~~~
 pyenv install 3.12.1
 ~~~
 ### 2 pyenv global set
+python 3.12.1のグローバル設定
 ~~~
 pyenv global 3.12.1
 ~~~
 ### 3 python version check
+python 3.12.1がグローバル設定されていることの確認
 ~~~
 pyenv versions
 ~~~
@@ -148,13 +154,14 @@ poetryインストール
 curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
 ~~~
 ### 5 Poetry install check
+poetryバージョンチェック
 ~~~
 poetry --version
 ~~~
 
 ## 04_Application-install
-サンプルアプリケーションのインストール
 ### 1 clone application
+サンプルアプリケーションのインストール
 ~~~
 git clone https://github.com/tomi050403/flask-app.git
 ~~~
@@ -180,11 +187,13 @@ export FLASK_APP=flaskr
 ~~~
 
 ### 4 poetry install
+プロジェクトで利用されるpythonパッケージをインストール
 ~~~
 poetry install
 ~~~
 
 ### 5 poetry shell
+仮想環境起動
 ~~~
 poetry shell
 ~~~
@@ -220,6 +229,7 @@ gunicorn -b 0.0.0.0 flaskr:app
 WEBサーバへの設定
 ## 01 set-up-websv
 ### 1 nginx install
+nginxのインストール
 ~~~
 sudo dnf -y install nginx
 ~~~
