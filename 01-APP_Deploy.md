@@ -113,8 +113,8 @@ git clone https://github.com/pyenv/pyenv.git ~/.pyenv
 ~~~
 
 ### 2 Passing by pyenv
-pyenv利用のためパスを通す_1
 #### 2-1 Add pyenv to the PATH
+pyenv利用のためパスを通す_1
 ~~~
 echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
 ~~~
