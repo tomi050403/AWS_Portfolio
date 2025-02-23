@@ -106,24 +106,6 @@ Resources:
         - Key: Name
           Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
 
-### NATgateway
-  NATGatewayIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} NATGatewayIP
-
-  NATGateway:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      SubnetId: !Ref PublicSubnet1
-      AllocationId: !GetAtt NATGatewayIP.AllocationId
-      Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} NATGateway
-
   RDSSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:

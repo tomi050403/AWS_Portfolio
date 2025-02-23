@@ -57,14 +57,6 @@ Resources:
         - !ImportValue Flask-App-Security-Stack-EC2WEBSecurityGroup
       KeyName: !Ref EC2Keypair
       IamInstanceProfile: !ImportValue Flask-App-Security-Stack-SSMIAMInstanceProfile
-      UserData: 
-        Fn::Base64: |
-          #!/bin/bash
-          yum update -y
-          amazon-linux-extras enable python3.8
-          yum install -y python3.8
-          ln -sf /usr/bin/python3.8 /usr/bin/python3
-          ln -sf /usr/bin/pip3.8 /usr/bin/pip3
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName} WebServer
@@ -83,14 +75,6 @@ Resources:
         - !ImportValue Flask-App-Security-Stack-EC2APPSecurityGroup
       KeyName: !Ref EC2Keypair
       IamInstanceProfile: !ImportValue Flask-App-Security-Stack-SSMIAMInstanceProfile
-      UserData: 
-        Fn::Base64: |
-          #!/bin/bash
-          yum update -y
-          amazon-linux-extras enable python3.8
-          yum install -y python3.8
-          ln -sf /usr/bin/python3.8 /usr/bin/python3
-          ln -sf /usr/bin/pip3.8 /usr/bin/pip3
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName} AppServer

@@ -56,8 +56,8 @@ Parametersで各EC2インスタンス(AMAZON Linux 2023)にて任意のバージ
 
 |作成リソース一覧|備考|
 | :--- | :--- |
-|EC2WEB|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2023最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
-|EC2APP|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2023最新版<br>"false"選択時（デフォルト）：ami-007add8d6b8a5fb81|
+|EC2WEB|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2023最新版<br>"false"選択時（デフォルト）：ami-0b28346b270c7b165|
+|EC2APP|スタック作成時AMIの設定変更可能<br>"true"選択時：AmazonLinux2023最新版<br>"false"選択時（デフォルト）：ami-0b28346b270c7b165|
 |ALB||
 |RecordSet|EC2APP用Aレコード<br>EC2WEB→EC2APPの名前解決のため|
 

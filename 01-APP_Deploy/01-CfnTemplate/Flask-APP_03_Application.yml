@@ -58,7 +58,7 @@ Resources:
       KeyName: !Ref EC2Keypair
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName} WebServer"
+          Value: !Sub ${EnvironmentName} WebServer
 
 ### EC2 App Instance
   EC2AppInstance:
@@ -75,7 +75,7 @@ Resources:
       KeyName: !Ref EC2Keypair
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName} AppServer"
+          Value: !Sub ${EnvironmentName} AppServer
 
 
 ### Route 53 Record Set
@@ -104,7 +104,7 @@ Resources:
       IpAddressType: ipv4
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName} ALB"
+          Value: !Sub ${EnvironmentName} ALB
 
   ALBTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
