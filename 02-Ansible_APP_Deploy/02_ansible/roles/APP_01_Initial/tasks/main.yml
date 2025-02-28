@@ -1,0 +1,23 @@
+---
+- name: 01 Packages Updates
+  become: yes
+  ansible.builtin.dnf:
+    name: '*'
+    state: latest
+
+- name: 02 Install Dep Packages
+  become: yes
+  ansible.builtin.dnf:
+    name:
+      - git
+      - gcc
+      - zlib-devel
+      - bzip2-devel
+      - readline-devel
+      - sqlite
+      - sqlite-devel
+      - openssl-devel
+      - tk-devel
+      - libffi-devel
+      - xz-devel
+    state: present

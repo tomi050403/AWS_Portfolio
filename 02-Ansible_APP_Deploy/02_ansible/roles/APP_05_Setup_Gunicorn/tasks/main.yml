@@ -1,0 +1,14 @@
+---
+- name: 01 Gunicorn install
+  become_user: "{{ project_users }}"
+  command: poetry add gunicorn
+  args:
+    chdir: /home/ec2-user/flask-app/flaskr
+
+
+- name: 02 Gunicorn run
+  become_user: "{{ project_users }}"
+  command: poetry run gunicorn -b 0.0.0.0 flaskr:app --daemon
+  args:
+    chdir: /home/ec2-user/flask-app/flaskr
+    

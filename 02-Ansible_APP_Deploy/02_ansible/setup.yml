@@ -1,0 +1,18 @@
+---
+- name: Play book for AWS flask-app-delopy to appserver
+  become: yes
+  hosts: app_targetnode
+  vars_files:
+    - vars/vars.yml
+    - vars/sec.yml
+  roles:
+    - APP_01_Initial
+    - APP_02_Pyenv_Install
+    - APP_03_Python_install
+    - APP_04_Application_install_setup
+    - APP_05_Setup_Gunicorn
+
+- name: Play book for AWS flask-app-delopy to webserver
+  hosts: web_targetnode
+  roles:
+    - WEB_01_Set-Up-Websv

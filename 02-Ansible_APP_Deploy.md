@@ -14,8 +14,7 @@
 # CFnテンプレート
 ## 1,Network
 
-[Networkスタック](/01-APP_Deploy/01-Figure/Flask-APP_01_Network.yml)<br>
-※追加前。
+[Networkスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_01_Network.yml)<br>
 
 |主な変更点|備考|
 | :--- | :--- |
@@ -23,8 +22,7 @@
 
 ## 2,Security
 
-[Securityスタック](/01-APP_Deploy/01-Figure/Flask-APP_02_Security.yml)  <br>
-※追加前。
+[Securityスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_02_Security.yml)  <br>
 
 |主な変更点|備考|
 | :--- | :--- |
@@ -35,8 +33,7 @@
 
 ## 3,Application
 
-[Applicationスタック](/01-APP_Deploy/01-Figure/Flask-APP_03_Application.yml)<br>
-※追加前　
+[Applicationスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_03_Application.yml)<br>
 
 |主な変更点|備考|
 | :--- | :--- |
@@ -46,9 +43,8 @@
 
 ## 4,Application(RDS)
 
-[Application_RDSスタック](/01-APP_Deploy/01-Figure/Flask-APP_04_Application_RDS.yml)<br>
+[Application_RDSスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
-※追加前
 
 |主な変更点|備考|
 | :--- | :--- |
@@ -61,6 +57,8 @@ RDSのみスタック実行時間を要するため分離。<br>
 
 01の部分を置き換える
 →手動デプロイとansibleデプロイの対比
+
+
 
 
 

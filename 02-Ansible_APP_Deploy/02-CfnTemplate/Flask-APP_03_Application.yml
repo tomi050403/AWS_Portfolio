@@ -8,7 +8,7 @@ Parameters:
     Default: Flask-APP-Product
 
   UseEC2APPLatest:
-    Description: "Specify 'true' to use the latest Amazon Linux 2 AMI, or 'false' to specify a custom AMI ID."
+    Description: "Specify 'true' to use the latest Amazon Linux 2023 AMI, or 'false' to specify a custom AMI ID."
     Type: String
     AllowedValues: [true, false]
     Default: false
@@ -19,7 +19,7 @@ Parameters:
     Default: ami-0b28346b270c7b165
 
   UseEC2WEBLatest:
-    Description: "Specify 'true' to use the latest Amazon Linux 2 AMI, or 'false' to specify a custom AMI ID."
+    Description: "Specify 'true' to use the latest Amazon Linux 2023 AMI, or 'false' to specify a custom AMI ID."
     Type: String
     AllowedValues: [true, false]
     Default: false
@@ -31,12 +31,17 @@ Parameters:
 
   EC2Keypair:
     Description: "Enter the keypair to be used."
+    Default: flask-app-project
     Type: AWS::EC2::KeyPair::KeyName
 
   LatestAmazonLinuxAmi:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
     Default: "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
 
+  EC2AppInstanceInstanceType:
+    Description: ""
+    Default: t2.small
+    AllowedValues: [t2.micro, t2.small]
 
 Conditions:
   EC2APPUseEC2AmiLatestCheck: !Equals [!Ref UseEC2APPLatest, 'true']
@@ -69,7 +74,7 @@ Resources:
         - EC2APPUseEC2AmiLatestCheck
         - !Ref LatestAmazonLinuxAmi
         - !Ref ECAPPCustomAmi
-      InstanceType: t2.micro
+      InstanceType: !!Ref EC2AppInstanceInstanceType
       SubnetId: !ImportValue Flask-App-Network-Stack-PrivateSubnet1
       SecurityGroupIds:
         - !ImportValue Flask-App-Security-Stack-EC2APPSecurityGroup
