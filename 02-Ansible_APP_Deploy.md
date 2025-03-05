@@ -4,7 +4,7 @@
 # 手動デプロイとの主な変更点
 - Ansibleでコントロールノード（自宅ローカル端末）からターゲットノード（AWS EC2インスタンス）にPlaybookを実行する際、通常ssh接続を利用するが、SSMを経由してPlaybookを実行する形とする。
 - APP-SVについて、プライベートサブネットに移行。
-- RDSについてパスワード管理をsecret managerを利用する。
+- RDSについて、パスワード管理をsecret managerを利用する。
 
 # AWS環境構築
 変更点を踏まえた、今回実施の構成図は下記のとおり
@@ -54,14 +54,32 @@ RDSのみスタック実行時間を要するため分離。<br>
 
 # Ansibleアプリケーションデプロイ
 
+[手動デプロイ](https://github.com/tomi050403/AWS_Portfolio/blob/main/01-APP_Deploy.md#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)にて実施した内容について、ansibleのplaybookを作成。<br>
 
-01の部分を置き換える
-→手動デプロイとansibleデプロイの対比
+## 準備
+### コントロールノードの準備（Ansible実行環境構築）
+pyenv poetry
+### EC2インスタンス（ターゲットノード）への接続設定
+通常ターゲットノードへの接続にssh接続を行うため、SGの許可設定などが必要になるが、ssm経由で実行可能な方法があったため、ssm経由でplaybookを実行する構成とする。
 
 
-|||
+## デプロイ（およびRoles詳細）
+今回はsetup.ymlにplaybookを記載し、
+ディレクトリ構成
+setup.yml
+
+|roles||
 | :--- | :--- |
-|||
+|APP_01_Initial||
+|APP_02_Pyenv_Install||
+|APP_03_Python_install||
+|APP_04_Application_install_setup||
+|APP_05_Setup_Gunicorn||
+
+### 
+playbook
+
+## デプロイ後の確認
 
 
 ## ⅰ APP-SV
