@@ -57,201 +57,67 @@ RDSのみスタック実行時間を要するため分離。<br>
 [手動デプロイ](https://github.com/tomi050403/AWS_Portfolio/blob/main/01-APP_Deploy.md#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)にて実施した内容について、ansibleのplaybookを作成。<br>
 
 ## 準備
-### コントロールノードの準備（Ansible実行環境構築）
-pyenv poetry
-### EC2インスタンス（ターゲットノード）への接続設定
-通常ターゲットノードへの接続にssh接続を行うため、SGの許可設定などが必要になるが、ssm経由で実行可能な方法があったため、ssm経由でplaybookを実行する構成とする。
+### コントロールノード（Ansible実行環境構築）
 
-
-## デプロイ（およびRoles詳細）
-今回はsetup.ymlにplaybookを記載し、
-ディレクトリ構成
-setup.yml
-
-|roles||
+|||
 | :--- | :--- |
-|APP_01_Initial||
-|APP_02_Pyenv_Install||
-|APP_03_Python_install||
-|APP_04_Application_install_setup||
-|APP_05_Setup_Gunicorn||
+|OS| Amazon Linux 2 (Kernel 4.14.355)|
+|仮想化環境| Hyper-V (自宅サーバ)|
+|Ansible| v2.18.1|
+|Python|3.12 (pyenv + Poetry)|
 
-### 
-playbook
+### ターゲットノード（EC2インスタンス）への接続設定
+通常ansibleにてターゲットノードへssh接続するため、公開IPやSGの許可設定などが必要になるが、ssm経由で実行可能な方法があったため、ssm経由でplaybookを実行する構成とする。
+
+[hosts.ini](02-Ansible_APP_Deploy/02_ansible/inventoryes/hosts.ini)<br>
+
+上記箇所に下記のようにhosts.iniファイルを作成
+
+~~~
+[app_targetnode]
+EC2AppInstance ansible_host=<APPインスタンスID>
+
+[web_targetnode]
+EC2WebInstance ansible_host=<WEBインスタンスID>
+
+[all:vars]
+ansible_user='ec2-user'
+ansible_become=true
+ansible_ssh_private_key_file=<プロジェクト用keyfileパス>
+ansible_python_interpreter=/usr/bin/python3.9
+ansible_ssh_common_args=-o StrictHostKeyChecking=no -o ProxyCommand="sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\""
+~~~
+
+## デプロイ
+### roles
+[手動デプロイ](01-APP_Deploy.md)にて実施した内容を下記のようにroles定義<br>
+
+|roles|手動デプロイ項番|対象|
+| :--- | :--- | :--- |
+|APP_01_Initial|01_Initial|APP|
+|APP_02_Pyenv_Install|02 pyenv-install|APP|
+|APP_03_Python_install|03_Python-install|APP|
+|APP_04_Application_install_setup|04_Application-install|APP|
+|APP_05_Setup_Gunicorn|05_Application-setup|APP|
+|WEB_01_Initial|01 set-up-websv|WEB|
+
+### vars
+[vars.yml](vars/vars.yml)<br>
+roles内で使用するユーザ名やファイルパス、アプリケーションバージョンなどの定義ファイル<br>
+[sec.yml](vars/sec.yml)<br>
+roles内で使用するDB情報など秘匿したい情報を定義したファイル<br>
+ansible-vault encrypt [ファイル名]コマンドにて暗号化している。<br>
+
+### 実行
+setup.ymlに上記内容のplaybookを記載し、下記コマンドで実行する。<br>
+
+~~~
+ansible-playbook -i inventoryes/hosts.ini setup.yml --ask-vault-pass
+~~~
 
 ## デプロイ後の確認
 
-
-## ⅰ APP-SV
-APPサーバへの設定
-## 01_Initial
-### 1 dnf update
-dnfのアップデート
-~~~
-sudo dnf update -y
-~~~
-
-### 2 Install-Dep-Packages
-必要パッケージのインストール
-~~~
-sudo dnf install -y git gcc zlib-devel bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
-~~~
-
-## 02 pyenv-install
-### 1 clone pyenv
-pyenvのインストール
-~~~
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-~~~
-
-### 2 Passing by pyenv
-#### 2-1 Add pyenv to the PATH
-pyenv利用のためパスを通す_1
-~~~
-echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
-~~~
-
-#### 2-2 Add the pyenv init the shell
-pyenv利用のためパスを通す_2
-~~~
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-~~~
-
-#### 2-3 Run source ~/.bashrc
-pyenv利用のためパスを通す_3
-~~~
-source ~/.bashrc
-~~~
-
-## 03_Python-install
-### 1 pyenv install
-python 3.12.1のインストール
-~~~
-pyenv install 3.12.1
-~~~
-### 2 pyenv global set
-python 3.12.1のグローバル設定
-~~~
-pyenv global 3.12.1
-~~~
-### 3 python version check
-python 3.12.1がグローバル設定されていることの確認
-~~~
-pyenv versions
-~~~
-
-### 4 Poetry install
-poetryインストール
-~~~
-curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
-~~~
-### 5 Poetry install check
-poetryバージョンチェック
-~~~
-poetry --version
-~~~
-
-## 04_Application-install
-### 1 clone application
-サンプルアプリケーションのインストール
-~~~
-git clone https://github.com/tomi050403/flask-app.git
-~~~
-
-## 05_Application-setup
-### 1 move directory
-プロジェクトディレクトリへ移動
-~~~
-cd flask-app
-~~~
-
-### 2 Setup env file
-サンプルアプリケーション用の.envファイル作成（.envについてはサンプルアプリケーションリポジトリ参照）
-[自作サンプルアプリケーション](https://github.com/tomi050403/flask-app.git)<br>
-~~~
-nano flaskr/.env
-~~~
-
-### 3 export FLASK_APP
-環境変数:FLASK_APPにアプリケーション名を設定
-~~~
-export FLASK_APP=flaskr
-~~~
-
-### 4 poetry install
-プロジェクトで利用されるpythonパッケージをインストール
-~~~
-poetry install
-~~~
-
-### 5 poetry shell
-仮想環境起動
-~~~
-poetry shell
-~~~
-
-### 6 frusk-run
-flask runコマンドでアプリケーション動作確認
-~~~
-flask run -h 0.0.0.0
-~~~
-
-## Flask接続確認
-
-### CFnにて作成したAppServerのパブリックIPを確認。
-![image](/01-APP_Deploy/01-Figure/01_app_ip.png)  <br>
-### EC2Appにブラウザ接続し、起動出来ていることを確認
-![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
-
-
-## 続けてapサーバとwebサーバを分離する。<br>06_Set-up-gunicorn
-### 1 gunicorn install
-gunicornのインストール
-~~~
-poetry add gunicorn
-~~~
-
-### 2 gnicorn run
-アプリケーションの起動
-~~~
-gunicorn -b 0.0.0.0 flaskr:app
-~~~
-
-## ⅱ WEB-SV
-WEBサーバへの設定
-## 01 set-up-websv
-### 1 nginx install
-nginxのインストール
-~~~
-sudo dnf -y install nginx
-~~~
-
-### 2 set up nginx config
-nginx設定ファイルの作成
-~~~
-sudo nano /etc/nginx/conf.d/flask-app.conf
-~~~
-
-下記のように作成。
-```nginx
-server {
-    listen 80;
-    server_name app.instance.privatelocal;
-
-    location / {
-        proxy_pass http://app.instance.privatelocal:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-    }
-}
-```
-
-
-### 3 Start nginx
-nginx起動
-~~~
-sudo systemctl start nginx.service
-~~~
+実行結果
 
 # Gunicorn接続確認
 
