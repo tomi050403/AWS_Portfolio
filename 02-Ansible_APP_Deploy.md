@@ -102,9 +102,9 @@ ansible_ssh_common_args=-o StrictHostKeyChecking=no -o ProxyCommand="sh -c \"aws
 |WEB_01_Initial|01 set-up-websv|WEB|
 
 ### vars
-[vars.yml](vars/vars.yml)<br>
+[vars.yml](02-Ansible_APP_Deploy/02_ansible/vars/vars.yml)<br>
 roles内で使用するユーザ名やファイルパス、アプリケーションバージョンなどの定義ファイル<br>
-[sec.yml](vars/sec.yml)<br>
+[sec.yml](02-Ansible_APP_Deploy/02_ansible/vars/sec.yml)<br>
 roles内で使用するDB情報など秘匿したい情報を定義したファイル<br>
 ansible-vault encrypt [ファイル名]コマンドにて暗号化している。<br>
 
@@ -115,15 +115,10 @@ setup.ymlに上記内容のplaybookを記載し、下記コマンドで実行す
 ansible-playbook -i inventoryes/hosts.ini setup.yml --ask-vault-pass
 ~~~
 
-## デプロイ後の確認
+下記のように実行結果が表示され、<br>
 
-実行結果
+![image](02-Ansible_APP_Deploy/02-Figure/01_ansible_result.png)  <br>
 
-# Gunicorn接続確認
+手動デプロイ時同様に、アプリケーションが起動していることを確認出来た。<br>
 
-## CFnにて作成されたALB DNS名を確認
-
-![image](/01-APP_Deploy/01-Figure/03_FLASK-APP-ALB.png)  <br>
-## ブラウザ接続し、ALB経由で起動出来ていることを確認
-
-![image](/01-APP_Deploy/01-Figure/04_gunicorn-run.png)  <br>
+![image](02-Ansible_APP_Deploy/02-Figure/02_result.png)
