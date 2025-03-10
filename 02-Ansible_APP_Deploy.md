@@ -2,7 +2,7 @@
 - 自作したCRUDアプリケーションをAWS環境にAnsibleにてデプロイする。
 
 # 手動デプロイとの主な変更点
-- Ansibleでコントロールノード（自宅ローカル端末）からターゲットノード（AWS EC2インスタンス）にPlaybookを実行する際、通常ssh接続を利用するが、SSMを経由してPlaybookを実行する形とする。
+- Ansibleでコントロールノード（自宅ローカル端末）からターゲットノード（AWS EC2インスタンス）にPlaybookを実行する際、SSMを利用する。
 - APP-SVについて、プライベートサブネットに移行。
 - RDSについて、パスワード管理をsecret managerを利用する。
 
@@ -109,13 +109,35 @@ roles内で使用するDB情報など秘匿したい情報を定義したファ�
 ansible-vault encrypt [ファイル名]コマンドにて暗号化している。<br>
 
 ### 実行
-setup.ymlに上記内容のplaybookを記載し、下記コマンドで実行する。<br>
+setup.ymlに上記内容のplaybookを記載、<br>
+
+~~~
+- name: Play book for AWS flask-app-delopy to appserver
+  become: yes
+  hosts: app_targetnode
+  vars_files:
+    - vars/vars.yml
+    - vars/sec.yml
+  roles:
+    - APP_01_Initial
+    - APP_02_Pyenv_Install
+    - APP_03_Python_install
+    - APP_04_Application_install_setup
+    - APP_05_Setup_Gunicorn
+
+- name: Play book for AWS flask-app-delopy to webserver
+  hosts: web_targetnode
+  roles:
+    - WEB_01_Set-Up-Websv
+~~~
+
+下記コマンドで実行する。<br>
 
 ~~~
 ansible-playbook -i inventoryes/hosts.ini setup.yml --ask-vault-pass
 ~~~
 
-下記のように実行結果が表示され、<br>
+実行結果が表示され、<br>
 
 ![image](02-Ansible_APP_Deploy/02-Figure/01_ansible_result.png)  <br>
 
