@@ -95,11 +95,11 @@ ansible_ssh_common_args=-o StrictHostKeyChecking=no -o ProxyCommand="sh -c \"aws
 |roles|手動デプロイ項番|対象|
 | :--- | :--- | :--- |
 |APP_01_Initial|01_Initial|APP|
-|APP_02_Pyenv_Install|02 pyenv-install|APP|
+|APP_02_Pyenv_Install|02_pyenv-install|APP|
 |APP_03_Python_install|03_Python-install|APP|
 |APP_04_Application_install_setup|04_Application-install|APP|
 |APP_05_Setup_Gunicorn|05_Application-setup|APP|
-|WEB_01_Initial|01 set-up-websv|WEB|
+|WEB_01_Initial|01_set-up-websv|WEB|
 
 ### vars
 [vars.yml](02-Ansible_APP_Deploy/02_ansible/vars/vars.yml)<br>

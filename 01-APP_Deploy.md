@@ -105,7 +105,7 @@ sudo dnf update -y
 sudo dnf install -y git gcc zlib-devel bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 ~~~
 
-## 02 pyenv-install
+## 02_pyenv-install
 ### 1 clone pyenv
 pyenvのインストール
 ~~~
@@ -227,7 +227,7 @@ gunicorn -b 0.0.0.0 flaskr:app
 
 ## ⅱ WEB-SV
 WEBサーバへの設定
-## 01 set-up-websv
+## 01_set-up-websv
 ### 1 nginx install
 nginxのインストール
 ~~~
