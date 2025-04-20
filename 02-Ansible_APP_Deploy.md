@@ -69,9 +69,9 @@ RDSのみスタック実行時間を要するため分離。<br>
 ### ターゲットノード（EC2インスタンス）への接続設定
 通常ansibleにてターゲットノードへssh接続するため、公開IPやSGの許可設定などが必要になるが、ssm経由で実行可能な方法があったため、ssm経由でplaybookを実行する構成とする。
 
-[hosts.ini](02-Ansible_APP_Deploy/02_ansible/inventoryes/hosts.ini)<br>
+02-Ansible_APP_Deploy/02_ansible/inventoryes
 
-上記箇所に下記のようにhosts.iniファイルを作成
+上記直下に下記のようにhosts.iniファイルを作成
 
 ~~~
 [app_targetnode]
