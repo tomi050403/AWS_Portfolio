@@ -1,0 +1,25 @@
+---
+- name: 01 clone application
+  become_user: "{{ project_users }}"
+  git:
+    repo: https://github.com/tomi050403/flask-app.git
+    dest: /home/ec2-user/flask-app
+    version: fix/db-list_review
+
+- name: 02 Setup env file application
+  become_user: "{{ project_users }}"
+  template:
+    src: templates/.env.j2
+    dest: /home/ec2-user/flask-app/flaskr/.env
+    mode: 0644
+
+- name: 03 Export FLASK_APP
+  become_user: "{{ project_users }}"
+  shell: "export FLASK_APP=flaskr"
+
+- name: 04 Poetry install
+  become_user: "{{ project_users }}"
+  command: poetry install
+  args:
+    chdir: /home/ec2-user/flask-app
+

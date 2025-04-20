@@ -8,7 +8,7 @@ Parameters:
     Default: Flask-APP-Product
 
   UseEC2APPLatest:
-    Description: "Specify 'true' to use the latest Amazon Linux 2 AMI, or 'false' to specify a custom AMI ID."
+    Description: "Specify 'true' to use the latest Amazon Linux 2023 AMI, or 'false' to specify a custom AMI ID."
     Type: String
     AllowedValues: [true, false]
     Default: false
@@ -16,10 +16,10 @@ Parameters:
   ECAPPCustomAmi:
     Description: "Specify a custom AMI ID (only used if 'UseEC2APPLatest' is 'false')."
     Type: String
-    Default: ami-007add8d6b8a5fb81
+    Default: ami-0b28346b270c7b165
 
   UseEC2WEBLatest:
-    Description: "Specify 'true' to use the latest Amazon Linux 2 AMI, or 'false' to specify a custom AMI ID."
+    Description: "Specify 'true' to use the latest Amazon Linux 2023 AMI, or 'false' to specify a custom AMI ID."
     Type: String
     AllowedValues: [true, false]
     Default: false
@@ -27,16 +27,22 @@ Parameters:
   ECWEBCustomAmi:
     Description: "Specify a custom AMI ID (only used if 'UseEC2WEBLatest' is 'false')."
     Type: String
-    Default: ami-007add8d6b8a5fb81
+    Default: ami-0b28346b270c7b165
 
   EC2Keypair:
     Description: "Enter the keypair to be used."
+    Default: flask-app-project
     Type: AWS::EC2::KeyPair::KeyName
 
   LatestAmazonLinuxAmi:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
-    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+    Default: "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
 
+  EC2AppInstanceInstanceType:
+    Description: "Select EC2AppInstance instance type"
+    Default: t2.small
+    AllowedValues: [t2.micro, t2.small]
+    Type: String
 
 Conditions:
   EC2APPUseEC2AmiLatestCheck: !Equals [!Ref UseEC2APPLatest, 'true']
@@ -56,9 +62,10 @@ Resources:
       SecurityGroupIds:
         - !ImportValue Flask-App-Security-Stack-EC2WEBSecurityGroup
       KeyName: !Ref EC2Keypair
+      IamInstanceProfile: !ImportValue Flask-App-Security-Stack-SSMIAMInstanceProfile
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName} WebServer"
+          Value: !Sub ${EnvironmentName} WebServer
 
 ### EC2 App Instance
   EC2AppInstance:
@@ -68,15 +75,15 @@ Resources:
         - EC2APPUseEC2AmiLatestCheck
         - !Ref LatestAmazonLinuxAmi
         - !Ref ECAPPCustomAmi
-      InstanceType: t2.micro
-      SubnetId: !ImportValue Flask-App-Network-Stack-PublicSubnet1
+      InstanceType: !Ref EC2AppInstanceInstanceType
+      SubnetId: !ImportValue Flask-App-Network-Stack-PrivateSubnet1
       SecurityGroupIds:
         - !ImportValue Flask-App-Security-Stack-EC2APPSecurityGroup
       KeyName: !Ref EC2Keypair
+      IamInstanceProfile: !ImportValue Flask-App-Security-Stack-SSMIAMInstanceProfile
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName} AppServer"
-
+          Value: !Sub ${EnvironmentName} AppServer
 
 ### Route 53 Record Set
   APPRecordSet:
@@ -104,7 +111,7 @@ Resources:
       IpAddressType: ipv4
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName} ALB"
+          Value: !Sub ${EnvironmentName} ALB
 
   ALBTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -127,7 +134,7 @@ Resources:
         HttpCode: 200
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName} ALBTG"
+          Value: !Sub ${EnvironmentName} ALBTG
 
   ALBListenerResource:
     Type: AWS::ElasticLoadBalancingV2::Listener

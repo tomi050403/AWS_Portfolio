@@ -1,0 +1,10 @@
+---
+project_users: ec2-user
+### 02_pyenv_install
+pyenv_dest: /home/ec2-user/.pyenv
+pyenv_path: export PATH="$HOME/.pyenv/bin:$PATH"
+pyenv_init: eval "$(pyenv init -)"
+bashrc_path: /home/ec2-user/.bashrc
+### 03_python_install
+python_version: 3.12.1
+poetry_version: 1.8.4

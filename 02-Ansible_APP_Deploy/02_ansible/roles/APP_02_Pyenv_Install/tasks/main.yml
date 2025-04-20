@@ -1,0 +1,27 @@
+---
+- name: 01 Clone Pyenv
+  become: yes
+  become_user: "{{ project_users }}"
+  git:
+    repo: https://github.com/pyenv/pyenv.git
+    dest: "{{ pyenv_dest }}"
+
+- name: 02_1 Add pyenv to the PATH
+  become_user: "{{ project_users }}"
+  lineinfile:
+    path: "{{ bashrc_path }}"
+    line: "{{ pyenv_path }}"
+    insertafter: EOF
+    state: present
+
+- name: 02_2 Add the pyenv init the shell
+  become_user: "{{ project_users }}"
+  lineinfile:
+    path: "{{ bashrc_path }}"
+    line: "{{ pyenv_init }}"
+    insertafter: EOF
+    state: present
+
+- name: 02_3 Run source ~/.bashrc
+  become_user: "{{ project_users }}"
+  shell: "source ~/.bashrc"

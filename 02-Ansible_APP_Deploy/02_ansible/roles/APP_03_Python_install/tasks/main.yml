@@ -1,0 +1,20 @@
+---
+- name: 01 Pyenv install
+  become_user: "{{ project_users }}"
+  command: pyenv install {{ python_version }}
+
+- name: 02 Pyenv global set
+  become_user: "{{ project_users }}"
+  command: pyenv global {{ python_version }}
+
+- name: 03 python version check
+  become_user: "{{ project_users }}"
+  command: pyenv versions
+
+- name: 04 poetry install
+  become_user: "{{ project_users }}"
+  shell: "curl -sSL https://install.python-poetry.org | python3 - --version {{ poetry_version }}"
+
+- name: 05 poetry version check
+  become_user: "{{ project_users }}"
+  command: poetry --version

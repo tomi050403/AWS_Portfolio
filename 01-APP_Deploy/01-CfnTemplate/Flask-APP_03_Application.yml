@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Flask-APP_sample Application stack"
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that is prefixed to resource names
+    Type: String
+    Default: Flask-APP-Product
+
+  UseEC2APPLatest:
+    Description: "Specify 'true' to use the latest Amazon Linux 2023 AMI, or 'false' to specify a custom AMI ID."
+    Type: String
+    AllowedValues: [true, false]
+    Default: false
+
+  ECAPPCustomAmi:
+    Description: "Specify a custom AMI ID (only used if 'UseEC2APPLatest' is 'false')."
+    Type: String
+    Default: ami-0b28346b270c7b165
+
+  UseEC2WEBLatest:
+    Description: "Specify 'true' to use the latest Amazon Linux 2023 AMI, or 'false' to specify a custom AMI ID."
+    Type: String
+    AllowedValues: [true, false]
+    Default: false
+
+  ECWEBCustomAmi:
+    Description: "Specify a custom AMI ID (only used if 'UseEC2WEBLatest' is 'false')."
+    Type: String
+    Default: ami-0b28346b270c7b165
+
+  EC2Keypair:
+    Description: "Enter the keypair to be used."
+    Type: AWS::EC2::KeyPair::KeyName
+
+  LatestAmazonLinuxAmi:
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
+
+
+Conditions:
+  EC2APPUseEC2AmiLatestCheck: !Equals [!Ref UseEC2APPLatest, 'true']
+  EC2WEBUseEC2AmiLatestCheck: !Equals [!Ref UseEC2WEBLatest, 'true']
+
+Resources:
+### EC2 Web Instance
+  EC2WebInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !If
+        - EC2WEBUseEC2AmiLatestCheck
+        - !Ref LatestAmazonLinuxAmi
+        - !Ref ECWEBCustomAmi
+      InstanceType: t2.micro
+      SubnetId: !ImportValue Flask-App-Network-Stack-PublicSubnet1
+      SecurityGroupIds:
+        - !ImportValue Flask-App-Security-Stack-EC2WEBSecurityGroup
+      KeyName: !Ref EC2Keypair
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} WebServer
+
+### EC2 App Instance
+  EC2AppInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !If
+        - EC2APPUseEC2AmiLatestCheck
+        - !Ref LatestAmazonLinuxAmi
+        - !Ref ECAPPCustomAmi
+      InstanceType: t2.micro
+      SubnetId: !ImportValue Flask-App-Network-Stack-PublicSubnet1
+      SecurityGroupIds:
+        - !ImportValue Flask-App-Security-Stack-EC2APPSecurityGroup
+      KeyName: !Ref EC2Keypair
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} AppServer
+
+
+### Route 53 Record Set
+  APPRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !ImportValue Flask-App-Network-Stack-APPHostedZone
+      Name: app.instance.privatelocal
+      Type: A
+      TTL: 60
+      ResourceRecords:
+        - !GetAtt EC2AppInstance.PrivateIpAddress
+
+### Application Load Balancer
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: Flask-APP-ALB
+      Scheme: internet-facing
+      Type: application
+      Subnets:
+        - !ImportValue Flask-App-Network-Stack-PublicSubnet1
+        - !ImportValue Flask-App-Network-Stack-PublicSubnet2
+      SecurityGroups:
+        - !ImportValue Flask-App-Security-Stack-ALBSecurityGroup
+      IpAddressType: ipv4
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} ALB
+
+  ALBTG:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: Flask-APP-ALB-TG
+      VpcId: !ImportValue Flask-App-Network-Stack-VPC
+      Protocol: HTTP
+      Port: 80
+      TargetType: instance
+      Targets:
+        - Id: !Ref EC2WebInstance
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /
+      HealthCheckPort: traffic-port
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Matcher:
+        HttpCode: 200
+      Tags:
+        - Key: Name
+          Value: !Sub "${EnvironmentName} ALBTG"
+
+  ALBListenerResource:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTG
+
+Outputs:
+  EC2WebInstance:
+    Description: EC2 Instance Web Server
+    Value: !Ref EC2WebInstance
+    Export:
+      Name: Flask-App-Application-Stack-EC2WebInstance
+
+  EC2AppInstance:
+    Description: EC2 Instance App Server
+    Value: !Ref EC2AppInstance
+    Export:
+      Name: Flask-App-Application-Stack-EC2AppInstance
+
+  ALB:
+    Description: ALB
+    Value: !Ref ALB
+    Export:
+      Name: Flask-App-Application-Stack-ALB
