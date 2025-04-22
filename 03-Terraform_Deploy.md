@@ -53,7 +53,6 @@
 
 - `environments/dev/backend.tf` に `backend "s3"` の設定を記述
 - 各環境は個別に S3 の key 名を持たせています
-- `terraform.tfstate` は `.gitignore` により Git 管理外に置き、安全性を確保しています
 
 ```hcl
 terraform {
@@ -72,6 +71,7 @@ terraform {
 
 構成の再利用性と環境ごとの柔軟性の高さを意識して、変数（variable）の値を別ファイルに定義しました。<br>
 本プロジェクトでは、`environments/dev/terraform.tfvars` にて dev 環境向けのパラメータを集中管理しています。<br>
+※設定例として`environments/dev/terraform.tfvars.example`をご参照下さい。
 
 例：
 ```hcl
