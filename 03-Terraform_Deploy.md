@@ -71,7 +71,7 @@ terraform {
 
 構成の再利用性と環境ごとの柔軟性の高さを意識して、変数（variable）の値を別ファイルに定義しました。<br>
 本プロジェクトでは、`environments/dev/terraform.tfvars` にて dev 環境向けのパラメータを集中管理しています。<br>
-※設定例として`environments/dev/terraform.tfvars.example`をご参照下さい。
+※設定例として[environments/dev/terraform.tfvars.example](03-Terraform_Deploy/03-Terraform_sourcecode/environments/dev/terraform.tfvars.example)をご参照下さい。
 
 例：
 ```hcl
@@ -175,19 +175,19 @@ terraform apply     # 適用
 ### ①terraform実行結果抜粋
 
 下記のように`terraform apply`が成功したことを確認。<br>
-![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\01_terraform_apply_result.png)<br>
+![image](03-Terraform_Deploy/03-Figure/01_terraform_apply_result.png)<br>
 
 ### ②parameter store 出力結果
 
 今回追加したParameter Storeについても作成されていることを確認。<br>
-![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\02_ssm_parameter_result.png)<br>
+![image](03-Terraform_Deploy/03-Figure/02_ssm_parameter_result.png)<br>
 
 ### ③alb 出力結果
 
 albについても作成されていることを確認。<br>
-![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\03_terraform_alb_result.png)<br>
+![image](03-Terraform_Deploy/03-Figure/03_terraform_alb_result.png)<br>
 
 ### ④ansible実行後のalbブラウザ接続結果
 
 terraformで構築した環境についてansibleでアプリケーションデプロイを行い、下記のようにアプリケーションに接続できることを確認できた。<br>
-![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\04_ansible_after_alb_result.png)<br>
+![image](03-Terraform_Deploy/03-Figure/04_ansible_after_alb_result.png)<br>
