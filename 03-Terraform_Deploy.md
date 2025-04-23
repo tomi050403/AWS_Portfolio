@@ -17,6 +17,7 @@
 
 ## ディレクトリ構成
 
+`/03-Terraform_Deploy/03-Terraform_sourcecode`
 ```bash
 .
 ├── environments/          # 環境ごとの設定
@@ -36,14 +37,13 @@
 ---
 
 ## インフラ構成図
-（作成中）
+![image](03-Terraform_Deploy/03-Figure/figure.png)  <br>
 
 ### 前回（cloudformation）からの変更点
 
-- RDSパスワード管理に利用していたsecret managerをSSM Parameter Storeに変更
-- 併せてRDS接続情報についてもSSM Parameter Storeに出力
-
-
+- RDSパスワードについてランダム生成。
+- RDSパスワード管理に利用していたsecret managerをSSM Parameter Storeに変更。
+- 併せてRDS接続情報についてもSSM Parameter Storeに出力。
 
 ---
 
@@ -173,6 +173,21 @@ terraform apply     # 適用
 ## 実行結果（作成中）
 
 ### ①terraform実行結果抜粋
+
+下記のように`terraform apply`が成功したことを確認。<br>
+![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\01_terraform_apply_result.png)<br>
+
 ### ②parameter store 出力結果
+
+今回追加したParameter Storeについても作成されていることを確認。<br>
+![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\02_ssm_parameter_result.png)<br>
+
 ### ③alb 出力結果
+
+albについても作成されていることを確認。<br>
+![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\03_terraform_alb_result.png)<br>
+
 ### ④ansible実行後のalbブラウザ接続結果
+
+terraformで構築した環境についてansibleでアプリケーションデプロイを行い、下記のようにアプリケーションに接続できることを確認できた。<br>
+![image](/Gdri_workspace\AWS_Portfolio\03-Terraform_Deploy\03-Figure\04_ansible_after_alb_result.png)<br>
