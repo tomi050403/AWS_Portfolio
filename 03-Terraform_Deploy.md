@@ -37,6 +37,14 @@
 ---
 
 ## インフラ構成図
+
+赤線枠部がTerraformでの構築範囲となります。また、構成図には以下の要素が含まれます：
+
+- VPCとパブリック/プライベートサブネット
+- Web/Appサーバ（EC2）とRDS（MySQL）
+- ALBを介した外部アクセス
+- Route53による名前解決（Webサーバ→APPサーバ）
+
 ![image](03-Terraform_Deploy/03-Figure/figure.png)  <br>
 
 ### 前回（cloudformation）からの変更点
@@ -47,7 +55,7 @@
 
 ---
 
-## Terraform状態管理（.tfstate）について
+## Terraform状態管理（.tfstate）
 
 本プロジェクトでは、**環境（dev/prod）ごとにディレクトリを分けた上で、別途準備したS3バケットをバックエンドとして状態管理**を行っています。
 
@@ -67,7 +75,7 @@ terraform {
 
 ---
 
-## パラメータ管理（terraform.tfvars）について
+## パラメータ管理（terraform.tfvars）
 
 構成の再利用性と環境ごとの柔軟性の高さを意識して、変数（variable）の値を別ファイルに定義しました。<br>
 本プロジェクトでは、`environments/dev/terraform.tfvars` にて dev 環境向けのパラメータを集中管理しています。<br>
@@ -95,7 +103,7 @@ AZ_2_privatesub = "10.10.12.0/24"
 ---
 
 
-## 構成モジュール
+## モジュール構成
 
 ### モジュール利用との関係
  `modules/` ディレクトリに機能単位でモジュールを定義しており、各環境（例：`environments/dev/main.tf`）では `module` ブロックでこれらを呼び出します。<br>
@@ -136,6 +144,7 @@ AZ_2_privatesub = "10.10.12.0/24"
 | IaC     | Terraform v1.11.2                           |
 | クラウド    | AWS (VPC, EC2, RDS, ALB, IAM, SSM, Route53) |
 | State管理 | S3 (backend.tf に記述)              |
+| 構成管理 | Ansible（Terraformで構築後のアプリケーション展開）             |
 | 秘匿情報    | SSM Parameter Store + SecureString          |
 
 ---
@@ -189,5 +198,5 @@ albについても作成されていることを確認。<br>
 
 ### ④ansible実行後のalbブラウザ接続結果
 
-terraformで構築した環境についてansibleでアプリケーションデプロイを行い、下記のようにアプリケーションに接続できることを確認できた。<br>
+terraformで構築した環境について前回同様にansibleでアプリケーションデプロイを行い、下記のようにアプリケーションに接続できることを確認できた。<br>
 ![image](03-Terraform_Deploy/03-Figure/04_ansible_after_alb_result.png)<br>
