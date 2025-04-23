@@ -170,7 +170,7 @@ terraform apply     # 適用
 
 ---
 
-## 実行結果（作成中）
+## 実行結果
 
 ### ①terraform実行結果抜粋
 
