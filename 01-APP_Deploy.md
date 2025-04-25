@@ -325,18 +325,29 @@ sudo systemctl start nginx.service
 - `app.instance.privatelocal` の名前解決が成功すること
 - ALB のDNSにアクセスしてFlaskアプリが表示されること
 
+---
+
+### 各CloudFormationスタックが「CREATE_COMPLETE」
+
+![image](01-APP_Deploy/01-Figure/08-stack.png)  <br>
+
+---
 
 ### HostZoneおよびArecordsetのリソース確認
-![image](01-APP_Deploy/01-Figure/08-stack.png)  <br>
+
 スタック作成後にホストゾーンとレコードセットが作成されていること、また、EC2WEBから名前解決できることを確認<br>
 ![image](01-APP_Deploy/01-Figure/05-hostzone.png)  <br>
 ![image](01-APP_Deploy/01-Figure/06-Arecordhostzone.png)  <br>
 ![image](01-APP_Deploy/01-Figure/07-nslookup.png)  <br>
 
+---
 
 ### CFnにて作成されたALB DNS名を確認
 
 ![image](01-APP_Deploy/01-Figure/03_FLASK-APP-ALB.png)  <br>
+
+---
+
 ### ブラウザ接続し、ALB経由で起動出来ていることを確認
 
 ![image](01-APP_Deploy/01-Figure/04_gunicorn-run.png)  <br>
