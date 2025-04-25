@@ -5,10 +5,12 @@
 本構成は、AWS上にFlaskアプリケーションを動作させるインフラを、CloudFormationテンプレートを用いて手動で構築する内容となっています。<br>
 以下の4つのテンプレートに分割し、段階的に構成を進めていきます。：
 
-- ネットワーク（VPC / Subnet / IGW / RouteTable / RDS用SubnetGroup / HostedZone）
-- セキュリティ（ALB / EC2 / RDS のセキュリティグループ）
-- アプリケーション（Web/App サーバー、ALB、Route53レコード）
-- RDS（MySQLデータベース）
+1. **Networkスタック**：VPC / Subnet / IGW / RouteTable / HostedZone
+2. **Securityスタック**：ALB / EC2 / RDS のセキュリティグループ
+3. **Applicationスタック**：Web/App サーバー、ALB、Route53レコード
+4. **Application_RDSスタック**：MySQLデータベース
+
+この手順は、次工程「02-Ansible_APP_Deploy」による**構成自動化の前段階**として機能します。
 
 ---
 
@@ -36,11 +38,9 @@
 
 ![構成図](01-APP_Deploy/01-Figure/figure.png)  <br>
 
-
 ---
 
 ## 構成テンプレートと主な役割
-
 
 ### 1. Flask-APP_01_Network.yml
 
@@ -60,7 +60,7 @@
 
 ### 2. Flask-APP_02_Security.yml
 
-[Securityスタック](01-APP_Deploy/01-Figure/Flask-APP_02_Security.yml)  <br>
+[Securityスタック](01-APP_Deploy/01-Figure/Flask-APP_02_Security.yml) <br>
 
 - ALB / Web / App / RDS 用のセキュリティグループを定義
 - IP制限付きのインバウンドルール（HTTP, SSH など）
@@ -72,7 +72,6 @@
 | App-SG | Webサーバーからの通信許可<br> Flask起動確認許可<br> ssh許可 | 8000 <br> 5000 <br> 22 |
 | RDS-SG | AppサーバーからのMySQL通信許可 | 3306 |
 
-
 ### 3. Flask-APP_03_Application.yml
 
 [Applicationスタック](01-APP_Deploy/01-Figure/Flask-APP_03_Application.yml)<br>
@@ -82,14 +81,12 @@
 - ALB + TargetGroup + Listener の作成
 - app.instance.privatelocal に対する Route53レコード登録
 
-
 | リソース | 説明 |
 |----------|------|
 | EC2（Websv） | PublicSubnet、ALB経由でアクセス |
 | EC2（Appsv） | Websvから接続 |
 | ALB | Websvをターゲットとしてリスニング（HTTP） |
 | Route53 Record | `app.instance.privatelocal` のAレコード作成（Appsv） |
-
 
 ### 4. Flask-APP_04_Application_RDS.yml
 
@@ -104,6 +101,14 @@
 
 > cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`が出力されるが、AWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。
 
+---
+
+## セキュリティと構成に関する補足
+
+- 各セキュリティグループで通信経路を分離
+- パスワードはスタック作成時直書き
+- SSHやALBアクセスは固定グローバルIPに制限
+- Route53はPrivate Hosted Zoneにより内部解決を実現（Websp → Appsv の名前解決用）
 
 ---
 
@@ -115,25 +120,36 @@
 4. パラメータを入力し「スタックの作成」実行
 
 ### スタック別パラメータ例
-#### Flask-APP_01_Network.yml
-- `EnvironmentName`: Flask-APP-Product
+
+| パラメータ名 | 値 |
+|--------------|----|
+| EnvironmentName | Flask-APP-Product |
 
 #### Flask-APP_02_Security.yml
-- `EnvironmentName`: Flask-APP-Product
-- `ALBAccessFrom`: グローバルIP例 `xxx.xxx.xxx.xxx/32`
-- `SSHAccessFrom`: グローバルIP例 `xxx.xxx.xxx.xxx/32`
+
+| パラメータ名 | 値 |
+|--------------|----|
+| EnvironmentName | Flask-APP-Product |
+| ALBAccessFrom | `xxx.xxx.xxx.xxx/32`（固定IP） |
+| SSHAccessFrom | `xxx.xxx.xxx.xxx/32`（固定IP） |
 
 #### Flask-APP_03_Application.yml
-- `EnvironmentName`: Flask-APP-Product
-- `EC2Keypair`: 作成済みのキーペア名
-- `UseEC2APPLatest`, `UseEC2WEBLatest`: false（AMI固定）
-- `AppServerAmiId`, `WebServerAmiId`: 利用したいAMI ID
+
+| パラメータ名 | 値 |
+|--------------|----|
+| EnvironmentName | Flask-APP-Product |
+| EC2Keypair | 任意のキーペア名 |
+| UseEC2APPLatest / UseEC2WEBLatest | false |
+| AppServerAmiId / WebServerAmiId | 任意のAMI（AmazonLinux2など） |
 
 #### Flask-APP_04_Application_RDS.yml
-- `EnvironmentName`: Flask-APP-Product
-- `RDSDBUserName`: （DBユーザ名）
-- `RDSDBUserPass`: （DBパスワード）
-- `RDSDataBaseName`: (データベース名)
+
+| パラメータ名 | 値 |
+|--------------|----|
+| EnvironmentName | Flask-APP-Product |
+| RDSDBUserName | admin |
+| RDSDBUserPass | adminadmin |
+| RDSDataBaseName | flask_app |
 
 > `Outputs` を活用し、後続テンプレート間の依存関係も管理しています。
 
@@ -169,8 +185,8 @@
 
 ## アプリケーション手動デプロイ
 
-> 本構成では Ansible や自動化ツールを使用していないため、**EC2インスタンスへ手動ログインしアプリケーションをセットアップ** します。  <br>次工程である「02_Ansible_APP_Deploy」にてこの手順を自動化します。
-
+> 本構成では Ansible や自動化ツールを使用していないため、**EC2インスタンスへ手動ログインしアプリケーションをセットアップ** します。 <br>
+> 次工程である「02_Ansible_APP_Deploy」にてこの手順を自動化します。
 
 ### ① Appサーバ構築手順（appsv）
 
@@ -207,12 +223,10 @@ flask run -h 0.0.0.0
 ```
 
 > Flask接続確認
-
-#### CFnにて作成したAppServerのパブリックIPを確認。
+> CFnにて作成したAppServerのパブリックIPを確認。
 ![image](/01-APP_Deploy/01-Figure/01_app_ip.png)  <br>
-#### EC2Appにブラウザ接続し、起動出来ていることを確認
+> EC2Appにブラウザ接続し、起動出来ていることを確認
 ![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
-
 
 ```bash
 # appサーバとwebサーバを分離する
@@ -254,7 +268,6 @@ server {
 sudo systemctl start nginx.service
 
 ```
-
 
 ---
 
