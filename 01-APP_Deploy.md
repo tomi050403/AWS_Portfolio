@@ -3,7 +3,7 @@
 ## 概要
 
 本構成は、AWS上にFlaskアプリケーションを動作させるインフラを、CloudFormationテンプレートを用いて手動で構築する内容となっています。<br>
-以下の4つのテンプレートに分割し、段階的に構成を進めていきます。
+以下の4つのテンプレートに分割し、段階的に構成を進めていきます。：
 
 - ネットワーク（VPC / Subnet / IGW / RouteTable / RDS用SubnetGroup / HostedZone）
 - セキュリティ（ALB / EC2 / RDS のセキュリティグループ）
@@ -53,8 +53,8 @@
 | 項目 | 説明 |
 |------|------|
 | VPC | 10.10.0.0/16 のCIDRブロック |
-| Public Subnet（2AZ） | Webサーバー/ALB用（1a,1c） |
-| Private Subnet（2AZ） | Appサーバー/RDS用（1a,1c） |
+| Public Subnet（2AZ） | Appサーバー/ Webサーバー/ALB用（1a,1c） |
+| Private Subnet（2AZ） | RDS用（1a,1c） |
 | IGW / RouteTable | インターネット通信用設定 |
 | HostedZone | `privatelocal` ドメイン向けPrivateゾーン |
 
@@ -101,9 +101,8 @@
 | リソース | 説明 |
 |----------|------|
 | RDS（MySQL8.0） | Multi-AZ構成（1a,1c） |
-| DBパラメータ | テンプレート上で定義（学習用途のため簡略） |
 
-cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回はAWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。<br>
+> cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`が出力されるが、AWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。
 
 
 ---
@@ -140,190 +139,10 @@ cfn-lint（コードを精査して、そのコードを実行したときにエ
 
 ---
 
-## アプリケーションデプロイ（手動）
-
-> 本構成では Ansible や自動化ツールを使用していないため、**EC2インスタンスへ手動ログインしアプリケーションをセットアップ** します。  
-（次フェーズのAnsibleでこの手順を自動化します）
-
-### ⅰ APP-SV
-APPサーバへの設定
-### 01_Initial
-#### 1 dnf update
-dnfのアップデート
-~~~
-sudo dnf update -y
-~~~
-
-#### 2 Install-Dep-Packages
-必要パッケージのインストール
-~~~
-sudo dnf install -y git gcc zlib-devel bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
-~~~
-
-### 02_pyenv-install
-#### 1 clone pyenv
-pyenvのインストール
-~~~
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-~~~
-
-#### 2 Passing by pyenv
-##### 2-1 Add pyenv to the PATH
-pyenv利用のためパスを通す_1
-~~~
-echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
-~~~
-
-##### 2-2 Add the pyenv init the shell
-pyenv利用のためパスを通す_2
-~~~
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-~~~
-
-##### 2-3 Run source ~/.bashrc
-pyenv利用のためパスを通す_3
-~~~
-source ~/.bashrc
-~~~
-
-### 03_Python-install
-#### 1 pyenv install
-python 3.12.1のインストール
-~~~
-pyenv install 3.12.1
-~~~
-#### 2 pyenv global set
-python 3.12.1のグローバル設定
-~~~
-pyenv global 3.12.1
-~~~
-#### 3 python version check
-python 3.12.1がグローバル設定されていることの確認
-~~~
-pyenv versions
-~~~
-
-#### 4 Poetry install
-poetryインストール
-~~~
-curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
-~~~
-#### 5 Poetry install check
-poetryバージョンチェック
-~~~
-poetry --version
-~~~
-
-### 04_Application-install
-#### 1 clone application
-サンプルアプリケーションのインストール
-~~~
-git clone https://github.com/tomi050403/flask-app.git
-~~~
-
-### 05_Application-setup
-#### 1 move directory
-プロジェクトディレクトリへ移動
-~~~
-cd flask-app
-~~~
-
-#### 2 Setup env file
-サンプルアプリケーション用の.envファイル作成（.envについてはサンプルアプリケーションリポジトリ参照）
-[自作サンプルアプリケーション](https://github.com/tomi050403/flask-app.git)<br>
-~~~
-nano flaskr/.env
-~~~
-
-#### 3 export FLASK_APP
-環境変数:FLASK_APPにアプリケーション名を設定
-~~~
-export FLASK_APP=flaskr
-~~~
-
-#### 4 poetry install
-プロジェクトで利用されるpythonパッケージをインストール
-~~~
-poetry install
-~~~
-
-#### 5 poetry shell
-仮想環境起動
-~~~
-poetry shell
-~~~
-
-#### 6 frusk-run
-flask runコマンドでアプリケーション動作確認
-~~~
-flask run -h 0.0.0.0
-~~~
-
-### Flask接続確認
-
-#### CFnにて作成したAppServerのパブリックIPを確認。
-![image](/01-APP_Deploy/01-Figure/01_app_ip.png)  <br>
-#### EC2Appにブラウザ接続し、起動出来ていることを確認
-![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
-
-
-### 続けてapサーバとwebサーバを分離する。
-### 06_Set-up-gunicorn
-#### 1 gunicorn install
-gunicornのインストール
-~~~
-poetry add gunicorn
-~~~
-
-#### 2 gnicorn run
-アプリケーションの起動
-~~~
-gunicorn -b 0.0.0.0 flaskr:app
-~~~
-
-### ⅱ WEB-SV
-WEBサーバへの設定
-### 01_set-up-websv
-#### 1 nginx install
-nginxのインストール
-~~~
-sudo dnf -y install nginx
-~~~
-
-#### 2 set up nginx config
-nginx設定ファイルの作成
-~~~
-sudo nano /etc/nginx/conf.d/flask-app.conf
-~~~
-
-下記のように作成。
-```nginx
-server {
-    listen 80;
-    server_name app.instance.privatelocal;
-
-    location / {
-        proxy_pass http://app.instance.privatelocal:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-    }
-}
-```
-
-
-#### 3 Start nginx
-nginx起動
-~~~
-sudo systemctl start nginx.service
-~~~
-
----
-
-## 確認事項
+## スタック結果確認
 
 - 各CloudFormationスタックが「CREATE_COMPLETE」であること
 - `app.instance.privatelocal` の名前解決が成功すること
-- ALB のDNSにアクセスしてFlaskアプリが表示されること
 
 ---
 
@@ -345,6 +164,103 @@ sudo systemctl start nginx.service
 ### CFnにて作成されたALB DNS名を確認
 
 ![image](01-APP_Deploy/01-Figure/03_FLASK-APP-ALB.png)  <br>
+
+---
+
+## アプリケーション手動デプロイ
+
+> 本構成では Ansible や自動化ツールを使用していないため、**EC2インスタンスへ手動ログインしアプリケーションをセットアップ** します。  <br>次工程である「02_Ansible_APP_Deploy」にてこの手順を自動化します。
+
+
+### ① Appサーバ構築手順（appsv）
+
+```bash
+# 1. 必要パッケージのインストール
+sudo dnf update -y
+sudo dnf install -y git gcc zlib-devel bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+
+# 2. pyenvのインストール
+git clone https://github.com/pyenv/pyenv.git .pyenv
+echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+source ~/.bashrc
+
+# 3. Pythonのインストールと環境切り替えおよびPoetryのインストール
+pyenv install 3.12.1
+pyenv global 3.12.1
+curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
+
+# 4. アプリケーションのcloneとインストール
+git clone https://github.com/tomi050403/flask-app.git
+cd flask-app
+nano flaskr/.env
+```
+
+> サンプルアプリケーション用の.envファイル作成（.envについてはサンプルアプリケーションリポジトリ参照）
+> [自作サンプルアプリケーション](https://github.com/tomi050403/flask-app.git)<br>
+
+```bash
+export FLASK_APP=flaskr
+poetry install
+poetry shell
+flask run -h 0.0.0.0
+
+```
+
+> Flask接続確認
+
+#### CFnにて作成したAppServerのパブリックIPを確認。
+![image](/01-APP_Deploy/01-Figure/01_app_ip.png)  <br>
+#### EC2Appにブラウザ接続し、起動出来ていることを確認
+![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
+
+
+### apサーバとwebサーバを分離する
+
+```bash
+# flask run を停止後
+# 5. Gunicorn起動
+poetry add gunicorn
+poetry run gunicorn flaskr:app -b 0.0.0.0:8000
+```
+
+### ② Webサーバ構築手順（websv）
+
+```bash
+# 1. nginxのインストールと設定
+sudo dnf -y install nginx
+
+# 2. Flaskアプリ向けnginx設定ファイルの配置
+sudo nano /etc/nginx/conf.d/flask-app.conf
+```
+
+> 下記のように作成。
+
+```nginx
+server {
+    listen 80;
+    server_name app.instance.privatelocal;
+
+    location / {
+        proxy_pass http://app.instance.privatelocal:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+}
+```
+
+```bash
+# 3. nginx起動
+sudo systemctl start nginx.service
+
+```
+
+
+---
+
+## アプリケーション接続確認
+
+- ALB のDNSにアクセスしてFlaskアプリが表示されること
 
 ---
 
