@@ -204,7 +204,6 @@ export FLASK_APP=flaskr
 poetry install
 poetry shell
 flask run -h 0.0.0.0
-
 ```
 
 > Flask接続確認
@@ -215,14 +214,15 @@ flask run -h 0.0.0.0
 ![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
 
 
-### apサーバとwebサーバを分離する
-
 ```bash
+# appサーバとwebサーバを分離する
 # flask run を停止後
 # 5. Gunicorn起動
 poetry add gunicorn
 poetry run gunicorn flaskr:app -b 0.0.0.0:8000
 ```
+
+---
 
 ### ② Webサーバ構築手順（websv）
 
