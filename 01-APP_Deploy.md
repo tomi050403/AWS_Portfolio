@@ -22,7 +22,7 @@
 
 ---
 
-##  ディレクトリ構成
+## ディレクトリ構成
 
 ```bash
 01-APP_Deploy/01-CfnTemplate/
@@ -36,7 +36,7 @@
 
 ## インフラ構成図
 
-![構成図](01-APP_Deploy/01-Figure/figure.png)  <br>
+![構成図](01-APP_Deploy/01-Figure/figure.png)
 
 ---
 
@@ -68,8 +68,8 @@
 | SG名 | 説明 | ポート |
 |------|------|------|
 | ALB-SG | 外部からのHTTPアクセス | 80 |
-| Web-SG | ALBからのトラフィック許可<br> ssh許可 | 80 <br> 22|
-| App-SG | Webサーバーからの通信許可<br> Flask起動確認許可<br> ssh許可 | 8000 <br> 5000 <br> 22 |
+| Web-SG | ALBからのトラフィック許可<br> SSH許可 | 80 <br> 22|
+| App-SG | Webサーバーからの通信許可<br> Flask起動確認許可<br> SSH許可 | 8000 <br> 5000 <br> 22 |
 | RDS-SG | AppサーバーからのMySQL通信許可 | 3306 |
 
 ### 3. Flask-APP_03_Application.yml
@@ -130,7 +130,7 @@
 | VpcCIDR | 10.10.0.0/16 |
 | PublicSubnet1CIDR | 10.10.1.0/24 |
 | PublicSubnet2CIDR | 10.10.2.0/24 |
-| PublicSubnet1CIDR | 10.10.11.0/24 |
+| PrivateSubnet1CIDR | 10.10.11.0/24 |
 | PrivateSubnet2CIDR | 10.10.12.0/24 |
 
 #### Flask-APP_02_Security.yml
