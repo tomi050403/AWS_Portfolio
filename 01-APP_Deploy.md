@@ -232,8 +232,11 @@ flask run -h 0.0.0.0
 
 > Flask接続確認
 > CFnにて作成したAppServerのパブリックIPを確認。
+
 ![image](/01-APP_Deploy/01-Figure/01_app_ip.png)  <br>
+
 > EC2Appにブラウザ接続し、起動出来ていることを確認
+
 ![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
 
 ```bash
