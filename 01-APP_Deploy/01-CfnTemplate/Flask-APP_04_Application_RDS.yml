@@ -10,11 +10,9 @@ Parameters:
   RDSDBUserName:
     Description: mysql user name
     Type: String
-    Default: "admin"
   RDSDBUserPass:
     Description: mysql user password
     Type: String
-    Default: "adminadmin"
     NoEcho: true
   RDSDataBaseName:
     Description: Enter the name of the database to be used in the application.

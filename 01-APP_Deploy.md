@@ -121,9 +121,17 @@
 
 ### スタック別パラメータ例
 
+#### Flask-APP_01_Network.yml
+
 | パラメータ名 | 値 |
 |--------------|----|
 | EnvironmentName | Flask-APP-Product |
+| VPCRegion | ap-northeast-1 |
+| VpcCIDR | 10.10.0.0/16 |
+| PublicSubnet1CIDR | 10.10.1.0/24 |
+| PublicSubnet2CIDR | 10.10.2.0/24 |
+| PublicSubnet1CIDR | 10.10.11.0/24 |
+| PrivateSubnet2CIDR | 10.10.12.0/24 |
 
 #### Flask-APP_02_Security.yml
 
@@ -147,9 +155,9 @@
 | パラメータ名 | 値 |
 |--------------|----|
 | EnvironmentName | Flask-APP-Product |
-| RDSDBUserName | admin |
-| RDSDBUserPass | adminadmin |
-| RDSDataBaseName | flask_app |
+| RDSDBUserName | （DBユーザ名） |
+| RDSDBUserPass | （DBパスワード） |
+| RDSDataBaseName | （DB名） |
 
 > `Outputs` を活用し、後続テンプレート間の依存関係も管理しています。
 
