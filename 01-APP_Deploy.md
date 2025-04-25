@@ -65,12 +65,12 @@
 - ALB / Web / App / RDS 用のセキュリティグループを定義
 - IP制限付きのインバウンドルール（HTTP, SSH など）
 
-| SG名 | 説明 |
-|------|------|
+| SG名 | 説明 | ポート |
+|------|------|------|
 | ALB-SG | 外部からのHTTPアクセス | 80 |
-| Web-SG | ALBからのトラフィックのみ許可 | 80 |
-| App-SG | Webサーバーからの通信のみ許可 | 8000 |
-| RDS-SG | AppサーバーからのMySQL通信のみ許可 | 3306 |
+| Web-SG | ALBからのトラフィック許可<br> ssh許可 | 80 <br> 22|
+| App-SG | Webサーバーからの通信許可<br> Flask起動確認許可<br> ssh許可 | 8000 <br> 5000 <br> 22 |
+| RDS-SG | AppサーバーからのMySQL通信許可 | 3306 |
 
 
 ### 3. Flask-APP_03_Application.yml
@@ -86,7 +86,7 @@
 | リソース | 説明 |
 |----------|------|
 | EC2（Websv） | PublicSubnet、ALB経由でアクセス |
-| EC2（Appsv） | PrivateSubnet、Websvから接続 |
+| EC2（Appsv） | Websvから接続 |
 | ALB | Websvをターゲットとしてリスニング（HTTP） |
 | Route53 Record | `app.instance.privatelocal` のAレコード作成（Appsv） |
 
@@ -105,13 +105,6 @@
 
 cfn-lint（コードを精査して、そのコードを実行したときにエラーを発生させる可能性のある構文エラーやバグがないかを探すプログラム）を実施すると`W1011 Use dynamic references over parameters for secrets`（秘密情報ハードコードの警告）が出力されるが、今回はAWSコンソールからの手動スタックにて値を入力することを前提としているため、対処せず。<br>
 
-
-## HostZoneおよびArecordsetのリソース確認
-![image](01-APP_Deploy/01-Figure/08-stack.png)  <br>
-スタック作成後にホストゾーンとレコードセットが作成されていること、また、EC2WEBから名前解決できることを確認<br>
-![image](01-APP_Deploy/01-Figure/05-hostzone.png)  <br>
-![image](01-APP_Deploy/01-Figure/06-Arecordhostzone.png)  <br>
-![image](01-APP_Deploy/01-Figure/07-nslookup.png)  <br>
 
 ---
 
@@ -331,6 +324,15 @@ sudo systemctl start nginx.service
 - 各CloudFormationスタックが「CREATE_COMPLETE」であること
 - `app.instance.privatelocal` の名前解決が成功すること
 - ALB のDNSにアクセスしてFlaskアプリが表示されること
+
+
+### HostZoneおよびArecordsetのリソース確認
+![image](01-APP_Deploy/01-Figure/08-stack.png)  <br>
+スタック作成後にホストゾーンとレコードセットが作成されていること、また、EC2WEBから名前解決できることを確認<br>
+![image](01-APP_Deploy/01-Figure/05-hostzone.png)  <br>
+![image](01-APP_Deploy/01-Figure/06-Arecordhostzone.png)  <br>
+![image](01-APP_Deploy/01-Figure/07-nslookup.png)  <br>
+
 
 ### CFnにて作成されたALB DNS名を確認
 
