@@ -2,26 +2,53 @@
 
 ## 概要
 
-自作したCRUDアプリケーションをAWS環境にAnsibleにてデプロイする。<br>
-前項にて手動デプロイしていた手順について自動デプロイするようAnsible Playbookを作成したものになります。<br>
+前フェーズでCloudFormationにより構築されたWebアプリケーション環境（EC2/ALB/RDSなど）に対して、**Ansibleを用いてアプリケーションの自動構成・デプロイ**を行うものです。
+
+---
 
 ## 製作目的
 
-- Ansible学習のアウトプット
-- AWS SAP認定資格取得時に学習したSSMの活用
+- 手動デプロイ工程をAnsibleで自動化
+- Webサーバー（nginx）、Appサーバー（gunicorn + Flask）の構築自動化
+- SSMを活用した安全なAnsible接続
 
-## 手動デプロイとの主な変更点
+---
+
+## ディレクトリ構成
+
+```bash
+02_Ansible_APP_Deploy/
+├── setup.yml                               # Playbook定義
+├── inventoryes
+│   └── hosts.ini                           # inventoryファイル
+├── roles                                   # roles定義
+│   ├── APP_01_Initial/
+│   ├── APP_02_Pyenv_Install/
+│   ├── APP_03_Python_install/
+│   ├── APP_04_Application_install_setup/
+│   ├── APP_05_Setup_Gunicorn/
+│   └── WEB_01_Set-Up-Websv/
+└── vars                                    # 変数定義
+    ├── sec.yml
+    └── vars.yml
+```
+
+---
+
+## CloudFormationテンプレート変更点
+
+- 本Playbookは、01にて構築されたCloudFormation環境上のEC2インスタンスを対象としています。
+- 01の際のものについて以下部分が変更になっています。：
 - Ansibleでコントロールノード（自宅ローカル端末）からターゲットノード（AWS EC2インスタンス）にPlaybookを実行する際、SSMを利用する。
 - APP-SVについて、プライベートサブネットに移行。
 - RDSについて、パスワード管理をsecret managerを利用する。
 
-# AWS環境構築
-変更点を踏まえた、今回実施の構成図は下記のとおり
-## 構成図
-![構成図](02-Ansible_APP_Deploy/02-Figure/figure.png)  <br>
 
-# CFnテンプレート
-## 1,Network
+---
+
+## CFnテンプレート
+
+### 1.Network
 
 [Networkスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_01_Network.yml)<br>
 
@@ -29,7 +56,7 @@
 | :--- | :--- | :--- |
 |NATGateway|追加|プライベートサブネットに配置変更したAPP-SVのインターネット接続のため|
 
-## 2,Security
+### 2.Security
 
 [Securityスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_02_Security.yml)  <br>
 
@@ -40,7 +67,7 @@
 |SG(各EC2)<br>ssh許可設定|削除|SSM利用に伴い許可設定が不要になったため|
 |SG(APP)<br>5000ポート許可設定|削除|完成版について5000ポートを利用しないため|
 
-## 3,Application
+### 3.Application
 
 [Applicationスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_03_Application.yml)<br>
 
@@ -49,8 +76,7 @@
 |各EC2インスタンス<br>IamInstanceProfile|追加|EC2へのSSM接続のため|
 |Prameters<br>EC2APPのInstanceType選択|追加|テストデプロイ時にリソース不足を示唆するエラーが発生したため選択式に変更<br>デフォルト:t2.small|
 
-
-## 4,Application(RDS)
+### 4.Application(RDS)
 
 [Application_RDSスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
@@ -59,30 +85,35 @@ RDSのみスタック実行時間を要するため分離。<br>
 | :--- | :--- | :--- |
 |RDS<br>Username,UserPassword|変更|Parametersを削除し、Secret Manager利用設定の追加|
 
+---
 
+## 構成図
 
-# Ansibleアプリケーションデプロイ
+- 変更点を踏まえた、今回実施の構成図は下記のとおり
 
-[手動デプロイ](https://github.com/tomi050403/AWS_Portfolio/blob/main/01-APP_Deploy.md#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)にて実施した内容について、ansibleのplaybookを作成。<br>
+![構成図](02-Ansible_APP_Deploy/02-Figure/figure.png)  <br>
 
-## 準備
-### コントロールノード（Ansible実行環境構築）
+---
 
-|||
-| :--- | :--- |
-|OS| Amazon Linux 2 (Kernel 4.14.355)|
-|仮想化環境| Hyper-V (自宅サーバ)|
-|Ansible| v2.18.1|
-|Python|3.12 (pyenv + Poetry)|
+## Ansible実行環境
 
-### ターゲットノード（EC2インスタンス）への接続設定
-通常ansibleにてターゲットノードへssh接続するため、公開IPやSGの許可設定などが必要になるが、ssm経由で実行可能な方法があったため、ssm経由でplaybookを実行する構成とする。
+### 利用バージョン例
 
-02-Ansible_APP_Deploy/02_ansible/inventoryes
+| ツール     | バージョン例        |
+|------------|---------------------|
+| Ansible    | v2.18.1        |
+| Python     | 3.12.1（pyenv使用） |
+| Poetry     | 1.8.4               |
 
-上記直下に下記のようにhosts.iniファイルを作成
+---
 
-~~~
+## Inventory構成（SSM接続）
+
+通常、AnsibleではSSHによる接続を行いますが、本構成では**SSM（AWS Systems Manager）経由の接続**を採用しています。
+
+`02-Ansible_APP_Deploy/02_ansible/Inventory/hosts.ini`
+
+```ini
 [app_targetnode]
 EC2AppInstance ansible_host=<APPインスタンスID>
 
@@ -95,57 +126,50 @@ ansible_become=true
 ansible_ssh_private_key_file=<プロジェクト用keyfileパス>
 ansible_python_interpreter=/usr/bin/python3.9
 ansible_ssh_common_args=-o StrictHostKeyChecking=no -o ProxyCommand="sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\""
-~~~
+```
 
-## デプロイ
-### roles
-[手動デプロイ](01-APP_Deploy.md)にて実施した内容を下記のようにroles定義<br>
+---
 
-|roles|手動デプロイ項番|対象|
+## Playbook構成と処理概要
+
+### Roles
+[setup.yml](02-Ansible_APP_Deploy/02-ansible_sourcecode/setup.yml)で定義し、[手動デプロイ](01-APP_Deploy.md)にて実施した内容を用途別に６つ定義しています。
+
+|Role名|対象|概要|
 | :--- | :--- | :--- |
-|APP_01_Initial|1. 必要パッケージのインストール|APP|
-|APP_02_Pyenv_Install|2. pyenvのインストール|APP|
-|APP_03_Python_install|3. Pythonのインストールと環境切り替えおよびPoetryのインストール|APP|
-|APP_04_Application_install_setup|4. アプリケーションのcloneとインストール|APP|
-|APP_05_Setup_Gunicorn|5. Gunicorn起動|APP|
-|WEB_01_Initial|Webサーバ構築手順|WEB|
+|APP_01_Initial|APP|1. 必要パッケージのインストール|
+|APP_02_Pyenv_Install|APP|2. pyenvのインストール|
+|APP_03_Python_install|APP|3. Pythonのインストールと環境切り替えおよびPoetryのインストール|
+|APP_04_Application_install_setup|APP|4. アプリケーションのcloneとインストール|
+|APP_05_Setup_Gunicorn|APP|5. Gunicorn起動|
+|WEB_01_Initial|WEB|Webサーバ構築手順|
 
 ### vars
 [vars.yml](02-Ansible_APP_Deploy/02_ansible/vars/vars.yml)<br>
-roles内で使用するユーザ名やファイルパス、アプリケーションバージョンなどの定義ファイル<br>
+Roles内で使用するユーザ名やファイルパス、アプリケーションバージョンなどを定義したファイルになります。<br>
 [sec.yml](02-Ansible_APP_Deploy/02_ansible/vars/sec.yml)<br>
-roles内で使用するDB情報など秘匿したい情報を定義したファイル<br>
-ansible-vault encrypt [ファイル名]コマンドにて暗号化している。<br>
+Roles内で使用するDB情報など秘匿したい情報を定義したファイルになります。<br>
+`ansible-vault encrypt`コマンドを用いて暗号化しています。<br>
 
-### 実行
-setup.ymlに上記内容のplaybookを記載、<br>
+`02-Ansible_APP_Deploy/02_ansible/vars/sec.yml`
+```yml
+db_host: "<ホスト名>"
+db_user: "<DBユーザー>"
+db_password: "<DBパスワード>"
+```
 
-~~~
-- name: Play book for AWS flask-app-delopy to appserver
-  become: yes
-  hosts: app_targetnode
-  vars_files:
-    - vars/vars.yml
-    - vars/sec.yml
-  roles:
-    - APP_01_Initial
-    - APP_02_Pyenv_Install
-    - APP_03_Python_install
-    - APP_04_Application_install_setup
-    - APP_05_Setup_Gunicorn
+---
 
-- name: Play book for AWS flask-app-delopy to webserver
-  hosts: web_targetnode
-  roles:
-    - WEB_01_Set-Up-Websv
-~~~
-
+## 実行
 下記コマンドで実行する。<br>
 
-~~~
-ansible-playbook -i inventoryes/hosts.ini setup.yml --ask-vault-pass
-~~~
+```bash
+ansible-playbook -i inventory/hosts.ini setup.yml --ask-vault-pass
+```
 
+---
+
+## 実行結果
 実行結果が表示され、<br>
 
 ![image](02-Ansible_APP_Deploy/02-Figure/01_ansible_result.png)  <br>
