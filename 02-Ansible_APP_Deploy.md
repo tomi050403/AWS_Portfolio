@@ -18,31 +18,36 @@
 
 ```bash
 02_Ansible_APP_Deploy/
-├── setup.yml                               # Playbook定義
-├── inventoryes
-│   └── hosts.ini                           # inventoryファイル
-├── roles                                   # roles定義
-│   ├── APP_01_Initial/
-│   ├── APP_02_Pyenv_Install/
-│   ├── APP_03_Python_install/
-│   ├── APP_04_Application_install_setup/
-│   ├── APP_05_Setup_Gunicorn/
-│   └── WEB_01_Set-Up-Websv/
-└── vars                                    # 変数定義
-    ├── sec.yml
-    └── vars.yml
+├── 02-CfnTemplate                          # 変更点を反映したCFnテンプレート
+│   ├── Flask-APP_01_Network.yml
+│   ├── Flask-APP_02_Security.yml
+│   ├── Flask-APP_03_Application.yml
+│   └── Flask-APP_04_Application_RDS.yml
+└── 02-ansible_sourcecode
+    ├── Inventory
+    │   └── hosts.ini                       # inventoryファイル
+    ├── roles                               # roles定義
+    │   ├── APP_01_Initial
+    │   ├── APP_02_Pyenv_Install
+    │   ├── APP_03_Python_install
+    │   ├── APP_04_Application_install_setup
+    │   ├── APP_05_Setup_Gunicorn
+    │   └── WEB_01_Set-Up-Websv
+    ├── setup.yml                           # Playbook定義
+    └── vars                                # 変数定義
+        ├── sec.yml
+        └── vars.yml
 ```
 
 ---
 
 ## CloudFormationテンプレート変更点
 
-- 本Playbookは、01にて構築されたCloudFormation環境上のEC2インスタンスを対象としています。
+- 本Playbookは、01にて構築されたCloudFormation環境上のEC2インスタンスを対象としています。  
 01の際のものについて以下部分が変更になっています。：
 - Ansibleでコントロールノード（自宅ローカル端末）からターゲットノード（AWS EC2インスタンス）にPlaybookを実行する際、SSMを利用する。
 - APP-SVについて、プライベートサブネットに移行。
 - RDSについて、パスワード管理をsecret managerを利用する。
-
 
 ---
 
@@ -133,6 +138,7 @@ ansible_ssh_common_args=-o StrictHostKeyChecking=no -o ProxyCommand="sh -c \"aws
 ## Playbook構成と処理概要
 
 ### Roles
+
 [setup.yml](02-Ansible_APP_Deploy/02-ansible_sourcecode/setup.yml)で定義し、[手動デプロイ工程](01-APP_Deploy.md)を用途別に６つのRoleに分割して定義しています。
 
 |Role名|対象|概要|
@@ -145,6 +151,7 @@ ansible_ssh_common_args=-o StrictHostKeyChecking=no -o ProxyCommand="sh -c \"aws
 |WEB_01_Initial|WEB|Webサーバ構築手順|
 
 ### vars
+
 [vars.yml](02-Ansible_APP_Deploy/02_ansible/vars/vars.yml)<br>
 Roles内で使用するユーザ名やファイルパス、アプリケーションバージョンなどを定義したファイルになります。<br>
 [sec.yml](02-Ansible_APP_Deploy/02_ansible/vars/sec.yml)<br>
@@ -152,6 +159,7 @@ Roles内で使用するDB情報など秘匿したい情報を定義したファ�
 `ansible-vault encrypt`コマンドを用いて暗号化しています。<br>
 
 `02-Ansible_APP_Deploy/02_ansible/vars/sec.yml`
+
 ```yml
 # sec.varsファイル一例
 db_host: "<ホスト名>"
@@ -162,6 +170,7 @@ db_password: "<DBパスワード>"
 ---
 
 ## 実行
+
 下記コマンドで実行するとパスワードを問われるため、`ansible-vault encrypt`で暗号化したパスワードを入力する。<br>
 
 ```bash
@@ -171,6 +180,7 @@ ansible-playbook -i inventory/hosts.ini setup.yml --ask-vault-pass
 ---
 
 ## 実行結果
+
 実行結果が表示され、<br>
 
 ![image](02-Ansible_APP_Deploy/02-Figure/01_ansible_result.png)  <br>

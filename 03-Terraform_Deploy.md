@@ -1,4 +1,4 @@
-# AWS Flaskアプリケーション環境のTerraform構築
+# Terraformによる環境自動構築
 
 ## 概要
 
@@ -18,6 +18,7 @@
 ## ディレクトリ構成
 
 `/03-Terraform_Deploy/03-Terraform_sourcecode`
+
 ```bash
 .
 ├── environments/          # 環境ごとの設定
@@ -38,7 +39,7 @@
 
 ## インフラ構成図
 
-赤線枠部がTerraformでの構築範囲となります。また、構成図には以下の要素が含まれます：
+赤破線枠部がTerraformでの構築範囲となります。また、構成図には以下の要素が含まれます：
 
 - VPCとパブリック/プライベートサブネット
 - Web/Appサーバ（EC2）とRDS（MySQL）
@@ -102,13 +103,12 @@ AZ_2_privatesub = "10.10.12.0/24"
 
 ---
 
-
 ## モジュール構成
 
 ### モジュール利用との関係
+
  `modules/` ディレクトリに機能単位でモジュールを定義しており、各環境（例：`environments/dev/main.tf`）では `module` ブロックでこれらを呼び出します。<br>
  各モジュールの出力 (`output`) を `module.xxx.output_name` 形式で他モジュールから参照可能なようにしております。
-
 
 ### ◼ 1. network
 

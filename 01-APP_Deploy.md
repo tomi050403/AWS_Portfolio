@@ -77,7 +77,7 @@
 [Applicationスタック](01-APP_Deploy/01-Figure/Flask-APP_03_Application.yml)<br>
 
 - Web用とApp用の2つのEC2インスタンスを作成
-- Amazon Linux AMI の選択（固定AMI or SSM最新）に対応
+- Amazon Linux AMI の選択（固定AMI or 最新）に対応
 - ALB + TargetGroup + Listener の作成
 - app.instance.privatelocal に対する Route53レコード登録
 
