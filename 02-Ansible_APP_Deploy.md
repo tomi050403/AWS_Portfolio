@@ -38,7 +38,7 @@
 ## CloudFormationテンプレート変更点
 
 - 本Playbookは、01にて構築されたCloudFormation環境上のEC2インスタンスを対象としています。
-- 01の際のものについて以下部分が変更になっています。：
+01の際のものについて以下部分が変更になっています。：
 - Ansibleでコントロールノード（自宅ローカル端末）からターゲットノード（AWS EC2インスタンス）にPlaybookを実行する際、SSMを利用する。
 - APP-SVについて、プライベートサブネットに移行。
 - RDSについて、パスワード管理をsecret managerを利用する。
@@ -52,7 +52,7 @@
 
 [Networkスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_01_Network.yml)<br>
 
-|主な変更点||備考|
+|変更点||備考|
 | :--- | :--- | :--- |
 |NATGateway|追加|プライベートサブネットに配置変更したAPP-SVのインターネット接続のため|
 
@@ -60,7 +60,7 @@
 
 [Securityスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_02_Security.yml)  <br>
 
-|主な変更点||備考|
+|変更点||備考|
 | :--- | :--- | :--- |
 |IAMRole|追加|EC2にSSM接続するため|
 |Secret Manager|追加|RDS設定情報管理のため|
@@ -71,7 +71,7 @@
 
 [Applicationスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_03_Application.yml)<br>
 
-|主な変更点||備考|
+|変更点||備考|
 | :--- | :--- | :--- |
 |各EC2インスタンス<br>IamInstanceProfile|追加|EC2へのSSM接続のため|
 |Prameters<br>EC2APPのInstanceType選択|追加|テストデプロイ時にリソース不足を示唆するエラーが発生したため選択式に変更<br>デフォルト:t2.small|
@@ -81,7 +81,7 @@
 [Application_RDSスタック](02-Ansible_APP_Deploy/02-CfnTemplate/Flask-APP_04_Application_RDS.yml)<br>
 RDSのみスタック実行時間を要するため分離。<br>
 
-|主な変更点||備考|
+|変更点||備考|
 | :--- | :--- | :--- |
 |RDS<br>Username,UserPassword|変更|Parametersを削除し、Secret Manager利用設定の追加|
 
@@ -161,7 +161,7 @@ db_password: "<DBパスワード>"
 ---
 
 ## 実行
-下記コマンドで実行する。<br>
+下記コマンドで実行するとパスワードを問われるため、`ansible-vault encrypt`で暗号化したパスワードを入力する。<br>
 
 ```bash
 ansible-playbook -i inventory/hosts.ini setup.yml --ask-vault-pass
