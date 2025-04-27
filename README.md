@@ -5,7 +5,7 @@
 段階的にIaC（Infrastructure as Code）技術を活用しながら整理・自動化したものです。<br>
 ※[raisetechにて学んだ学習](https://github.com/tomi050403/aws)の振り返りと、追加要素の学習も兼ねています。<br>
 
-なお、デプロイ対象となるアプリケーションは、自作した[flask-app](https://github.com/tomi050403/flask-app)（簡易画像データ管理システム）です。  
+また、デプロイ対象となるアプリケーションは、自作した[flask-app](https://github.com/tomi050403/flask-app)（簡易画像データ管理システム）です。  
 
 ---
 
@@ -21,7 +21,7 @@
 
 | No | フェーズ名                   | 内容                                   |
 |----|-------------------------------|--------------------------------------|
-| 01 | [Flaskアプリ手動構築](01-APP_Deploy.md) | EC2/RDS/ALB/Route53をCFnで手動構築し、手動でFlaskアプリ展開 |
+| 01 | [Flaskアプリ手動構築](01-APP_Deploy.md) | VPC/EC2/RDS/ALB/Route53をCFnで手動構築し、手動でFlaskアプリ展開 |
 | 02 | [Ansibleによるアプリ自動デプロイ](02-Ansible_APP_Deploy.md)   | 01の環境にAnsibleを用いてアプリ・サーバ設定を自動化           |
 | 03 | [Terraformによる環境自動構築](03-Terraform_Deploy.md)       | 環境全体（VPC〜アプリサーバまで）をTerraformでモジュール化・自動化 |
 | 04 |作成中||
@@ -38,11 +38,13 @@ AWS_Portfolio/
 └── README.md（本ページ）
 ```
 
+---
+
 ## 使用技術一覧
 
 | 項目           | 内容                                    |
 |----------------|----------------------------------------|
-| クラウド        | AWS（EC2, RDS, ALB, Route53, IAM, SSM）|
+| クラウド        | AWS（VPC, EC2, RDS, ALB, Route53, IAM, SSM）|
 | IaCツール      | CloudFormation, Ansible, Terraform    |
 | 言語・ミドルウェア | Python3 (Flask), Gunicorn, Nginx       |
 | 管理手法       | S3バックエンドによるtfstate管理        |
@@ -63,6 +65,8 @@ AWS_Portfolio/
 - 本ポートフォリオではGunicorn + Nginx構成にて本番運用を想定しデプロイ
 - `.env` ファイルによるDB接続情報管理
 
+---
+
 ## 今後の展望（予定）
 
-- **04_CICD_Pipeline** ：CI/CDパイプライン（GitHub ActionsやCodePipeline）導入予定
+- **04_CICD_Pipeline** ：CI/CDパイプライン（GitHub Actions等）導入予定
