@@ -133,7 +133,7 @@ ansible_ssh_common_args=-o StrictHostKeyChecking=no -o ProxyCommand="sh -c \"aws
 ## Playbook構成と処理概要
 
 ### Roles
-[setup.yml](02-Ansible_APP_Deploy/02-ansible_sourcecode/setup.yml)で定義し、[手動デプロイ](01-APP_Deploy.md)にて実施した内容を用途別に６つ定義しています。
+[setup.yml](02-Ansible_APP_Deploy/02-ansible_sourcecode/setup.yml)で定義し、[手動デプロイ工程](01-APP_Deploy.md)を用途別に６つのRoleに分割して定義しています。
 
 |Role名|対象|概要|
 | :--- | :--- | :--- |
@@ -153,6 +153,7 @@ Roles内で使用するDB情報など秘匿したい情報を定義したファ�
 
 `02-Ansible_APP_Deploy/02_ansible/vars/sec.yml`
 ```yml
+# sec.varsファイル一例
 db_host: "<ホスト名>"
 db_user: "<DBユーザー>"
 db_password: "<DBパスワード>"
