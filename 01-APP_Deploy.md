@@ -1,4 +1,4 @@
-# Flaskアプリ手動構築（CloudFormation）
+# Flaskアプリ手動構築
 
 ## 概要
 
