@@ -3,7 +3,7 @@
 ## 概要
 このリポジトリは、AWS上に**自作Flaskアプリケーション**の実行環境を構築する過程を、  
 段階的にIaC（Infrastructure as Code）技術を活用しながら整理・自動化したものです。<br>
-※[raisetechにて学んだ学習](https://github.com/tomi050403/aws)の振り返りと、追加要素の学習も兼ねています。<br>
+※[raisetechにて学んだ学習](https://github.com/tomi050403/aws_raisetech)の振り返りと、追加要素の学習も兼ねています。<br>
 
 また、デプロイ対象となるアプリケーションは、自作した[flask-app](https://github.com/tomi050403/flask-app)（簡易画像データ管理システム）です。  
 
