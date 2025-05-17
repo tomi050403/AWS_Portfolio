@@ -277,7 +277,8 @@ server {
 ```bash
 # 3. nginx起動
 sudo systemctl start nginx.service
-
+# 3. nginx起動設定
+sudo systemctl enable nginx.service
 ```
 
 ---

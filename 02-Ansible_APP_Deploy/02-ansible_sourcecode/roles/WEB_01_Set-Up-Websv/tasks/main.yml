@@ -17,4 +17,7 @@
   ansible.builtin.command:
     cmd: bash -lc "systemctl start nginx.service"
 
-
+- name: 04 Enable nginx
+  become: yes
+  ansible.builtin.command:
+    cmd: bash -lc "systemctl enable nginx.service"
