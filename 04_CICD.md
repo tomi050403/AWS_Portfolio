@@ -13,19 +13,19 @@ GitHub Actionsを用いて、Terraformによるインフラ構築からAnsible�
 ---
 
 ## ディレクトリ構成
-ソースコードについては別リポジトリ([Flask_App_CICD_AWS](https://github.com/tomi050403/Flask_App_CICD_AWS))をご参照ください。  
+ワーフクローおよび対象ソースコードについては別リポジトリ([Flask_App_CICD_AWS](https://github.com/tomi050403/Flask_App_CICD_AWS))をご参照ください。  
 
 ```
 .github/workflows/
 └── flask_app_cicd_aws_https.yml  # 本ワークフロー定義
-01_terraform/flask-app/
-02_ansible/
-03_serverspec/
+01_terraform/flask-app/           # terraformソースコード
+02_ansible/                       # ansibleソースコード
+03_serverspec/                    # serverspecソースコード
 ```
 
 ---
 
-## イメージ
+## 構成図
 
 ![CI/CDフロー図](04-CICD/04-Figure/figure.png)  <br>
  
@@ -35,7 +35,7 @@ GitHub Actionsを用いて、Terraformによるインフラ構築からAnsible�
 
 |トリガー種別     | 条件                                              |
 | :-------------- | :---------------------------------------------- |
-|push             |ブランチへの push かつ .trigger/change.txt の更新有  |
+|push             |ブランチへの push  |
 
 
 ## 環境変数
@@ -52,6 +52,21 @@ GitHub Actionsを用いて、Terraformによるインフラ構築からAnsible�
 | ANS\_EXECUTE\_PATH          | Ansible 実行ディレクトリ        |
 | SPEC\_EXECUTE\_PATH         | Serverspec 実行ディレクトリ     |
 | SPEC\_RUBY\_VERSION         | Ruby バージョン              |
+
+## Actions secrets and variables
+### secrets
+| 変数                        | 説明                      |
+| --------------------------- | ----------------------- |
+| AWS_IAM_ROLE_ARN            | AWS credentials 用 |
+| BED_01_BACKEND_BUCKET       | Terraform state file 保存先 S3 bucket |
+| EC2_PRIVATE_KEY             | ssh key pair |
+| RDS_01_RDS_USERNAME         | RDS username |
+| SEC_01_ALB_FROM_IP          | ALB接続用SG用許可IP |
+
+### variables
+| 変数                         | 説明                      |
+| --------------------------- | ----------------------- |
+| PUBLIC_HOST_ZONE | Route53 ホストゾーン |
 
 ## ジョブ構成と依存関係
 
@@ -129,30 +144,27 @@ Ansible Playbook によるアプリデプロイ実行
   8. `bundle install`
   9. `bundle exec rake spec` 実行
 
-#### アプリケーションサーバテスト項目
-| カテゴリ               | テスト内容                                                                    |
-| ---------------------- | ----------------------------------------------------------------------------- |
-| パッケージ             | 必要なビルドツール・ライブラリがインストールされているか                       |
-| Pyenv                  | `pyenv` がインストールされていること                                           |
-| Python バージョン      | Python のバージョンが `3.12.1` であること                                      |
-| Python 実行パス        | python が `pyenv` 管理下であること                                             |
-| Poetry                 | `poetry` のバージョンが `1.8.4` であること                                     |
-| ディレクトリ存在確認   | `flask-app` ディレクトリが存在すること                                         |
-| .envファイル確認       | `.env` ファイルが存在し、必要な環境変数が記述されていること（6項目）           |
-| Gunicorn プロセス      | `gunicorn` が `flaskr:app` をデーモンとして起動していること                    |
-| アプリケーションポート | ポート `8000` が Listen 状態であること                                         |
-| ホストIP確認           | 意図したNWセグメントに アプリケーションサーバが構築されていること　<br> `hostname -I` の結果に `10.10.12.*` が含まれる  |
-| RDS エンドポイント確認 | 意図したNWセグメントに RDSが構築されていること　<br> RDSエンドポイントに対する `dig` の結果が `10.10.*` または `10.20.*` のネットワークセグメントである |
-#### Webサーバテスト項目
-| カテゴリ           | テスト内容                                                                          |
-| ------------------ | ----------------------------------------------------------------------------------- |
-| Nginx パッケージ   | `nginx` がインストールされていること                                                |
-| Nginx サービス     | `nginx` サービスが有効化され、起動していること                                      |
-| Nginx 設定ファイル | 設定ファイルが存在し、`proxy_pass` 設定に正しいホスト名とポートが指定されていること |
-| Webポート確認      | ポート `80` が Listen 状態であること                                                |
-| ホスト名解決       | アプリケーションサーバがプライベートドメイン名で名前解決可能であること          |
-| アプリ疎通確認     | アプリケーションが HTTP 200 を返すこと                                              |
-| ホストIP確認       | 意図したNWセグメントに webサーバが構築されていること　<br> `hostname -I` の結果に `10.10.11.*` が含まれること |
+#### テスト項目
+|対象サーバ | カテゴリ         | テスト内容                                                                   |
+| --------- | ---------------- | ----------------------------------------------------------------------------- |
+|APP | パッケージ             | 必要なビルドツール・ライブラリがインストールされているか                       |
+|APP | Pyenv                  | `pyenv` がインストールされていること                                           |
+|APP | Python バージョン      | Python のバージョンが `3.12.1` であること                                      |
+|APP | Python 実行パス        | python が `pyenv` 管理下であること                                             |
+|APP | Poetry                 | `poetry` のバージョンが `1.8.4` であること                                     |
+|APP | ディレクトリ存在確認   | `flask-app` ディレクトリが存在すること                                         |
+|APP | .envファイル確認       | `.env` ファイルが存在し、必要な環境変数が記述されていること（6項目）           |
+|APP | Gunicorn プロセス      | `gunicorn` が `flaskr:app` をデーモンとして起動していること                    |
+|APP | アプリケーションポート | ポート `8000` が Listen 状態であること                                         |
+|APP | ホストIP確認           | 意図したNWセグメントに アプリケーションサーバが構築されていること　<br> `hostname -I` の結果に `10.10.12.*` が含まれる  |
+|APP | RDS エンドポイント確認 | 意図したNWセグメントに RDSが構築されていること　<br> RDSエンドポイントに対する `dig` の結果が `10.10.*` または `10.20.*` のネットワークセグメントである |
+|WEB | Nginx パッケージ   | `nginx` がインストールされていること                                                |
+|WEB | Nginx サービス     | `nginx` サービスが有効化され、起動していること                                      |
+|WEB | Nginx 設定ファイル | 設定ファイルが存在し、`proxy_pass` 設定に正しいホスト名とポートが指定されていること |
+|WEB | Webポート確認      | ポート `80` が Listen 状態であること                                                |
+|WEB | ホスト名解決       | アプリケーションサーバにプライベートドメイン名で名前解決可能であること          |
+|WEB | アプリ疎通確認     | アプリケーションが HTTP 200 を返すこと                                              |
+|WEB | ホストIP確認       | 意図したNWセグメントに webサーバが構築されていること　<br> `hostname -I` の結果に `10.10.11.*` が含まれること |
 
 ---
 
@@ -160,12 +172,27 @@ Ansible Playbook によるアプリデプロイ実行
 - セキュリティ情報や接続情報（例：AWS IAM Role、SSH Key等）は secrets にて秘匿化
 - 特定の処理は コミットメッセージ(github.event.head_commit.message, '[apply]')や outputs:にて起動条件を利用して柔軟な条件制御を実現
 - "prod"にてhttps化を行う場合、terraformのリソース参照やmodule機能を利用し、既存の独自ドメインにterraformで各種必要レコードを構築
-- AnsibleおよびServerspec実行時のEC2インスタンスへの接続にてCICDワークフローでもSSH over SSMを利用
+- AnsibleおよびServerspec実行時のEC2インスタンスへの接続にてCICDワークフローでも[SSH over SSM](https://docs.aws.amazon.com/ja_jp/systems-manager/latest/userguide/session-manager-getting-started-enable-ssh-connections.html)<br>を利用
+
+
+
+## 実行結果
+CICDについて下記の通りすべてのジョブが完了していることを確認。<br>
+![cicd_result](04-CICD/04-Figure/cdcd_result.png)  <br>
+
+アプリケーションについても動作していることを確認。<br>
+![app_check](04-CICD/04-Figure/https.png)  <br>
+
 
 ## 注意事項
 
 * 各種 Secrets（AWS IAM Role ARN, EC2 Private Key, GitHub Token など）は事前登録が必要です
 * Terraform apply 実行にはコミットメッセージに `[apply]` を含める必要があります
-* "prod"としてワークフローを実行する場合、route53にて取得済みのドメインをvariables*PUBLIC_HOST_ZONE*に設定する必要があります
+* "prod"としてワークフローを実行する場合、route53にて取得済みのドメインをvariablesの*PUBLIC_HOST_ZONE*に設定しておく必要があります
 * Ansible や Serverspec のバージョンは既存フェーズに合わせて管理して下さい
 * Flaskアプリのソースコードも別リポジトリ（[flask-app](https://github.com/tomi050403/flask-app)）になります
+
+
+## その他
+flaskアプリケーションに500エラーの挙動を追加し、rdsを停止させた際の挙動確認。<br>
+![500error確認](/AWS_Portfolio/04-CICD/04-Figure/500errror.png)  <br>

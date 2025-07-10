@@ -77,4 +77,4 @@ AWS_Portfolio/
 
 ## 今後の展望（予定）
 
-- 
+- コンテナ化→ECS/Fargate化の検討
