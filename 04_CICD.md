@@ -195,4 +195,4 @@ CICDについて下記の通りすべてのジョブが完了していること�
 
 ## その他
 flaskアプリケーションに500エラーの挙動を追加し、rdsを停止させた際の挙動確認。<br>
-![500error確認](/AWS_Portfolio/04-CICD/04-Figure/500errror.png)  <br>
+![500error確認](04-CICD/04-Figure/500errror.png)  <br>
