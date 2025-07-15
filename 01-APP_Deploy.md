@@ -192,8 +192,8 @@
 
 ## AWS環境へのアプリケーション手動デプロイ
 
-> 本構成では Ansible や自動化ツールを使用していないため、**EC2インスタンスへ手動ログインしアプリケーションをセットアップ** します。 <br>
-> 次工程である「02_Ansible_APP_Deploy」にてこの手順を自動化します。
+本構成では Ansible や自動化ツールを使用していないため、**EC2インスタンスへ手動ログインしアプリケーションをセットアップ** します。 <br>
+> 次工程である「02_Ansible_APP_Deploy」では当手順を自動化します。
 
 ### ① Appサーバ構築手順（appsv）
 
@@ -219,7 +219,7 @@ cd flask-app
 nano flaskr/.env
 ```
 
-> サンプルアプリケーション用の.envファイル作成（.envについてはサンプルアプリケーションリポジトリ参照）
+> サンプルアプリケーション用の.envファイル作成（.envについてはサンプルアプリケーションリポジトリ参照）<br>
 > [自作サンプルアプリケーション](https://github.com/tomi050403/flask-app.git)<br>
 
 ```bash
@@ -229,12 +229,12 @@ poetry shell
 flask run -h 0.0.0.0
 ```
 
-> Flask接続確認
-> CFnにて作成したAppServerのパブリックIPを確認。
+Flask接続確認  <br>
+CFnにて作成したAppServerのパブリックIPを確認。
 
 ![image](/01-APP_Deploy/01-Figure/01_app_ip.png)  <br>
 
-> EC2Appにブラウザ接続し、起動出来ていることを確認
+EC2Appにブラウザ接続し、起動出来ていることを確認
 
 ![image](/01-APP_Deploy/01-Figure/02_app_flaskrun.png)  <br>
 
@@ -258,7 +258,7 @@ sudo dnf -y install nginx
 sudo nano /etc/nginx/conf.d/flask-app.conf
 ```
 
-> 下記のように作成。
+下記のように作成。
 
 ```nginx
 server {

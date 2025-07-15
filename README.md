@@ -21,16 +21,16 @@
 
 | No | フェーズ名                   | 内容                                   |
 |----|-------------------------------|--------------------------------------|
-| 01 | [Flaskアプリ手動構築](01-APP_Deploy.md) | VPC/EC2/RDS/ALB/Route53をCFnで手動構築し、手動でFlaskアプリ展開 |
-| 02 | [Ansibleによるアプリ自動デプロイ](02-Ansible_APP_Deploy.md)   | 01の環境にAnsibleを用いてアプリ・サーバ設定を自動化           |
-| 03 | [Terraformによる環境自動構築](03-Terraform_Deploy.md)       | 環境全体（VPC〜アプリサーバまで）をTerraformでモジュール化・自動化 |
-| 04 | [GitHubActionsによるCICDパイプライン実装](04_CICD.md) | 環境構築〜サーバテストまでをCI/CDパイプラインにて実装 |
+| 01 | [Flaskアプリ手動構築](01-APP_Deploy.md) | VPC/EC2/RDS/ALB/Route53をCFnで構築し、手動でFlaskアプリ展開 |
+| 02 | [Ansibleによるアプリ自動デプロイ](02-Ansible_APP_Deploy.md)   | 01で手動展開した内容についてAnsibleを用いてアプリデプロイ・サーバ設定を自動化           |
+| 03 | [Terraformによる環境自動構築](03-Terraform_Deploy.md)       | 02までCFnで行っていた環境構築をTerraformにて自動化（モジュール化） |
+| 04 | [GitHubActionsによるCICDパイプライン実装](04_CICD.md) | 環境構築（Terraform）、アプリデプロイ〜サーバテストまでをCI/CDパイプラインにて実装 |
 
 
 ---
 
 ## 構成イメージ（現時点）
-![image](04-CICD/04-Figure/image.png)
+![image](04-CICD/04-Figure/figure.png)
 
 ---
 
