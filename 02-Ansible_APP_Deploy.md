@@ -2,13 +2,13 @@
 
 ## 概要
 
-前フェーズでCloudFormationにより構築されたWebアプリケーション環境（EC2/ALB/RDSなど）に対して、**Ansibleを用いてアプリケーションの自動構成・デプロイ**を行うものです。
+CloudFormationにより構築されたWebアプリケーション環境（EC2/ALB/RDSなど）に対して、**Ansibleを用いてアプリケーションの自動構成・デプロイ**を行うものです。
 
 ---
 
 ## 製作目的
 
-- 手動デプロイ工程をAnsibleで自動化
+- 全フェーズの手動デプロイ工程をAnsibleで自動化
 - Webサーバー（nginx）、Appサーバー（gunicorn + Flask）の構築自動化
 - SSMを活用した安全なAnsible接続
 
@@ -41,10 +41,17 @@
 
 ---
 
-## CloudFormationテンプレート変更点
+## 構成図
 
-- 本Playbookは、01にて構築されたCloudFormation環境上のEC2インスタンスを対象としています。  
-01の際のものについて以下部分が変更になっています。：
+- 今回実施の構成図は下記のとおり
+
+![構成図](02-Ansible_APP_Deploy/02-Figure/figure.png)  <br>
+
+---
+
+
+## CloudFormationテンプレート変更点
+前フェーズの際のものについて以下部分が変更になっています。
 - Ansibleでコントロールノード（自宅ローカル端末）からターゲットノード（AWS EC2インスタンス）にPlaybookを実行する際、SSMを利用する。
 - APP-SVについて、プライベートサブネットに移行。
 - RDSについて、パスワード管理をsecret managerを利用する。
@@ -92,13 +99,6 @@ RDSのみスタック実行時間を要するため分離。<br>
 
 ---
 
-## 構成図
-
-- 変更点を踏まえた、今回実施の構成図は下記のとおり
-
-![構成図](02-Ansible_APP_Deploy/02-Figure/figure.png)  <br>
-
----
 
 ## Ansible実行環境
 

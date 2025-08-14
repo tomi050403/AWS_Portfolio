@@ -37,14 +37,9 @@
 
 ---
 
-## インフラ構成図
+## 構成図
 
 赤破線枠部がTerraformでの構築範囲となります。また、構成図には以下の要素が含まれます：
-
-- VPCとパブリック/プライベートサブネット
-- Web/Appサーバ（EC2）とRDS（MySQL）
-- ALBを介した外部アクセス
-- Route53による名前解決（Webサーバ→APPサーバ）
 
 ![image](03-Terraform_Deploy/03-Figure/figure.png)  <br>
 
@@ -112,7 +107,7 @@ AZ_2_privatesub = "10.10.12.0/24"
 
 ### ◼ 1. network
 
-- VPC, Subnet, Route Table, IGW, NAT Gateway などを対応
+- VPC, Subnet, Route Table, IGW, NAT Gateway ネットワーク関連に関する定義
 
 ### ◼ 2. security
 
@@ -134,6 +129,14 @@ AZ_2_privatesub = "10.10.12.0/24"
 
 - Private Hosted Zone　定義
 - `app.<env>` として A レコード登録（websv　→　appsvの名前解決用）
+
+### ◼ 6. alb
+
+- alb定義
+
+### ◼ 7. iam
+
+- ec2へアタッチするためのssm接続用iamロールを定義。
 
 ---
 
